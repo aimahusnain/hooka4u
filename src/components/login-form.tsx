@@ -51,7 +51,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
             required
             value={username}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              // @ts-expect-error
+              // @ts-ignore
               setUsername(e.target.value)
             }
           />
@@ -65,7 +65,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
             required
             value={password}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              // @ts-expect-error
+              // @ts-ignore
               setPassword(e.target.value)
             }
           />
