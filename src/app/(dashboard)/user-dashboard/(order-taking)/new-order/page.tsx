@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Minus, ShoppingCart, Search, X, Loader2 } from "lucide-react";
+import { Plus, Minus, ShoppingCart, Search, X, Loader2, ChevronUp } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyHookahState } from "@/components/empty-hookah-state";
+import { toast } from "sonner";
 
 interface Product {
   id: string;
@@ -40,6 +41,8 @@ export default function NewOrder() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Fetch products from database
   useEffect(() => {
@@ -119,6 +122,72 @@ export default function NewOrder() {
     }
   };
 
+  const handlePlaceOrder = async () => {
+    if (cartItems.length === 0) return;
+    
+    if (!customerName.trim()) {
+      toast.info("Customer name is required", {
+        description: "Please enter a customer name before placing the order.",
+        action: {
+          label: "Close",
+          onClick: () => console.log("Toast Closed"),
+        },
+      });
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const orderData = {
+        customerName: customerName.trim(),
+        items: cartItems.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+        })),
+        subtotal,
+      };
+
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to place order");
+      }
+
+      const order = await response.json();
+
+      setCart({});
+      setCustomerName("");
+      setSearchQuery("");
+      setIsCartOpen(false);
+
+      toast.success("Order has been successfully placed!", {
+        // @ts-ignore
+        description: "Order ID: " + order.id,
+        action: {
+          label: "Close",
+          onClick: () => console.log("Toast Closed"),
+        },
+      });
+    } catch (err) {
+      console.error("Error placing order:", err);
+      toast.error("We are sorry to say, but your order cannot be placed", {
+        description: "Please try again later!",
+        action: {
+          label: "Close",
+          onClick: () => console.log("Toast Closed"),
+        },
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const cartItems = Object.values(cart);
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -129,7 +198,7 @@ export default function NewOrder() {
   return (
     <div className="flex flex-col h-screen bg-background">
       <header className="flex h-14 shrink-0 items-center gap-3 bg-card border-b border-border">
-        <div className="flex items-center gap-3 px-5 w-full">
+        <div className="flex items-center gap-3 px-3 sm:px-5 w-full">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="h-4" />
           <Breadcrumb>
@@ -154,18 +223,18 @@ export default function NewOrder() {
       </header>
 
       {/* Main Content */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
         {/* Products Section */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="gap-3 flex px-6 py-4 bg-card border-b border-border">
+        <div className="flex-1 flex flex-col overflow-hidden pb-20 md:pb-0">
+          <div className="gap-2 sm:gap-3 flex flex-col sm:flex-row px-3 sm:px-6 py-3 sm:py-4 bg-card border-b border-border">
             <Input
               placeholder="Customer Name"
               value={customerName}
               // @ts-ignore
               onChange={(e) => setCustomerName(e.target.value)}
-              className="max-w-md h-9 bg-muted border-border text-sm"
+              className="w-full sm:max-w-md h-9 bg-muted border-border text-sm"
             />
-            <div className="relative max-w-md">
+            <div className="relative w-full sm:max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 placeholder="Search products..."
@@ -177,7 +246,7 @@ export default function NewOrder() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6">
             {loading ? (
               <div className="flex flex-col items-center justify-center h-full">
                 <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
@@ -214,7 +283,7 @@ export default function NewOrder() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                 {filteredProducts.map((product) => {
                   const inCart = cart[product.id];
                   const isSelected = inCart && inCart.quantity > 0;
@@ -229,9 +298,9 @@ export default function NewOrder() {
                       }`}
                       onClick={() => handleProductClick(product)}
                     >
-                      <CardContent className="px-4 space-y-3">
+                      <CardContent className="px-3 sm:px-4 space-y-2 sm:space-y-3">
                         <div>
-                          <h3 className="font-semibold text-sm text-foreground leading-snug">
+                          <h3 className="font-semibold text-xs sm:text-sm text-foreground leading-snug">
                             {product.name}
                           </h3>
                           {product.description && (
@@ -241,7 +310,7 @@ export default function NewOrder() {
                           )}
                         </div>
                         <div className="flex items-center justify-between pt-1">
-                          <span className="font-semibold text-base text-foreground">
+                          <span className="font-semibold text-sm sm:text-base text-foreground">
                             ${product.price.toFixed(2)}
                           </span>
                           {isSelected && (
@@ -259,7 +328,8 @@ export default function NewOrder() {
           </div>
         </div>
 
-        <div className="w-full md:w-96 lg:w-[400px] bg-card border-l border-border flex flex-col">
+        {/* Desktop Sidebar - Hidden on Mobile */}
+        <div className="hidden md:flex w-96 lg:w-[400px] bg-card border-l border-border flex-col">
           {/* Cart Header */}
           <div className="px-6 py-4 border-b border-border bg-muted/30">
             <div className="flex items-center justify-between">
@@ -356,10 +426,141 @@ export default function NewOrder() {
               </div>
               <Button
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 text-sm font-medium transition-colors"
-                disabled={cartItems.length === 0}
+                disabled={cartItems.length === 0 || submitting}
+                onClick={handlePlaceOrder}
               >
-                Place Order
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Placing Order...
+                  </>
+                ) : (
+                  "Place Order"
+                )}
               </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Bottom Sheet */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
+          {/* Bottom Bar - Always Visible */}
+          <div 
+            className="bg-card border-t border-border px-4 py-3 cursor-pointer"
+            onClick={() => setIsCartOpen(!isCartOpen)}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <ShoppingCart className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Current Order</p>
+                  <p className="text-xs text-muted-foreground">
+                    {totalItems} {totalItems === 1 ? 'item' : 'items'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-lg font-bold text-primary">
+                  ${subtotal.toFixed(2)}
+                </span>
+                <ChevronUp className={`w-5 h-5 text-muted-foreground transition-transform ${isCartOpen ? 'rotate-180' : ''}`} />
+              </div>
+            </div>
+          </div>
+
+          {/* Sliding Cart Panel */}
+          <div 
+            className={`bg-card border-t border-border transition-all duration-300 ease-in-out ${
+              isCartOpen ? 'max-h-[70vh]' : 'max-h-0'
+            } overflow-hidden`}
+          >
+            <div className="flex flex-col h-full max-h-[70vh]">
+              {/* Cart Items - Scrollable */}
+              <div className="flex-1 overflow-y-auto">
+                {cartItems.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-40 px-6 text-muted-foreground">
+                    <ShoppingCart className="w-12 h-12 mb-3 opacity-30" />
+                    <p className="font-medium text-muted-foreground text-sm">
+                      No items yet
+                    </p>
+                    <p className="text-xs text-center mt-1 text-muted-foreground/80">
+                      Select products to start
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-4 space-y-3">
+                    {cartItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="bg-muted/40 rounded-lg p-3.5 border border-border"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-sm text-foreground truncate">
+                              {item.name}
+                            </h4>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              ${item.price.toFixed(2)}
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 -mt-1 -mr-1 hover:bg-destructive/10 hover:text-destructive text-muted-foreground"
+                            onClick={() => removeFromCart(item.id)}
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8 border-border hover:bg-muted bg-transparent"
+                              onClick={() => updateQuantity(item.id, -1)}
+                            >
+                              <Minus className="w-3 h-3" />
+                            </Button>
+                            <span className="w-6 text-center font-semibold text-sm text-foreground">
+                              {item.quantity}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8 border-border hover:bg-muted bg-transparent"
+                              onClick={() => updateQuantity(item.id, 1)}
+                            >
+                              <Plus className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <span className="font-semibold text-sm text-foreground">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Place Order Button */}
+              <div className="border-t border-border bg-card p-4">
+                <Button
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 text-sm font-medium"
+                  disabled={cartItems.length === 0 || submitting}
+                  onClick={handlePlaceOrder}
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Placing Order...
+                    </>
+                  ) : (
+                    "Place Order"
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         </div>

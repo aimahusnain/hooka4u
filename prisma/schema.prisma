@@ -32,10 +32,29 @@ model VerificationToken {
 }
 
 model MenuItems {
-  id          String   @id @default(uuid()) @map("_id")
+  id          String      @id @default(uuid()) @map("_id")
   name        String
   description String?
   price       Float
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  OrderItem   OrderItem[]
+}
+
+model Order {
+  id           String      @id @default(uuid()) @map("_id")
+  customerName String?
+  items        OrderItem[]
+  subtotal     Float
+  createdAt    DateTime    @default(now())
+}
+
+model OrderItem {
+  id        String @id @default(uuid()) @map("_id")
+  orderId   String
+  productId String
+  quantity  Int
+
+  order   Order     @relation(fields: [orderId], references: [id])
+  product MenuItems @relation(fields: [productId], references: [id])
 }
