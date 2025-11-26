@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Minus, ShoppingCart, X, Loader2, ChevronUp } from "lucide-react";
+import { Plus, Minus, ShoppingCart, X, Loader2, ChevronUp, ArrowLeft } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -46,6 +46,7 @@ export default function NewOrder() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [showOrderForm, setShowOrderForm] = useState(false);
 
   // Fetch products from database
   useEffect(() => {
@@ -121,9 +122,16 @@ export default function NewOrder() {
     }
   };
 
-  const handlePlaceOrder = async () => {
+  const handlePlaceOrderClick = () => {
     if (cartItems.length === 0) return;
-    
+    setShowOrderForm(true);
+  };
+
+  const handleBackToCart = () => {
+    setShowOrderForm(false);
+  };
+
+  const handleConfirmOrder = async () => {
     if (!customerName.trim()) {
       toast.info("Customer name is required", {
         description: "Please enter a customer name before placing the order.",
@@ -166,6 +174,7 @@ export default function NewOrder() {
       setCustomerName("");
       setPaymentType("CASH");
       setSeating("");
+      setShowOrderForm(false);
       setIsCartOpen(false);
 
       toast.success("Order has been successfully placed!", {
@@ -308,10 +317,20 @@ export default function NewOrder() {
           <div className="px-6 py-4 border-b border-border bg-muted/30">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-semibold text-foreground flex items-center gap-2.5">
+                {showOrderForm && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 -ml-2"
+                    onClick={handleBackToCart}
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </Button>
+                )}
                 <ShoppingCart className="w-5 h-5 text-primary" />
-                Current Order
+                {showOrderForm ? "Order Details" : "Current Order"}
               </h2>
-              {totalItems > 0 && (
+              {!showOrderForm && totalItems > 0 && (
                 <Badge className="bg-primary hover:bg-primary text-primary-foreground px-2.5 py-0.5 text-xs font-medium">
                   {totalItems}
                 </Badge>
@@ -319,239 +338,14 @@ export default function NewOrder() {
             </div>
           </div>
 
-          {/* Order Form */}
-          <div className="px-6 py-4 border-b border-border space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="customerName" className="text-sm font-medium">
-                Customer Name *
-              </Label>
-              <Input
-                id="customerName"
-                placeholder="Enter customer name"
-                value={customerName}
-                // @ts-ignore
-                onChange={(e) => setCustomerName(e.target.value)}
-                className="h-9 bg-muted border-border text-sm"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Payment Type *</Label>
-              <RadioGroup value={paymentType} onValueChange={(value) => setPaymentType(value as "CASH" | "CARD")}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="CASH" id="cash" />
-                  <Label htmlFor="cash" className="text-sm font-normal cursor-pointer">
-                    Cash
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="CARD" id="card" />
-                  <Label htmlFor="card" className="text-sm font-normal cursor-pointer">
-                    Credit Card
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="seating" className="text-sm font-medium">
-                Seating Location
-              </Label>
-              <Input
-                id="seating"
-                placeholder="e.g., Table 5, Booth 2"
-                value={seating}
-                // @ts-ignore
-                onChange={(e) => setSeating(e.target.value)}
-                className="h-9 bg-muted border-border text-sm"
-              />
-            </div>
-          </div>
-
-          {/* Cart Items - Scrollable */}
-          <div className="flex-1 overflow-y-auto">
-            {cartItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full px-6 text-muted-foreground">
-                <ShoppingCart className="w-14 h-14 mb-3 opacity-30" />
-                <p className="font-medium text-muted-foreground text-sm">
-                  No items yet
-                </p>
-                <p className="text-xs text-center mt-1 text-muted-foreground/80">
-                  Select products to start
-                </p>
-              </div>
-            ) : (
-              <div className="p-4 space-y-3">
-                {cartItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-muted/40 rounded-lg p-3.5 border border-border transition-all hover:border-primary/50"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm text-foreground truncate">
-                          {item.name}
-                        </h4>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          ${item.price.toFixed(2)}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 -mt-1 -mr-1 hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-colors"
-                        onClick={() => removeFromCart(item.id)}
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8 border-border hover:bg-muted bg-transparent"
-                          onClick={() => updateQuantity(item.id, -1)}
-                        >
-                          <Minus className="w-3 h-3" />
-                        </Button>
-                        <span className="w-6 text-center font-semibold text-sm text-foreground">
-                          {item.quantity}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8 border-border hover:bg-muted bg-transparent"
-                          onClick={() => updateQuantity(item.id, 1)}
-                        >
-                          <Plus className="w-3 h-3" />
-                        </Button>
-                      </div>
-                      <span className="font-semibold text-sm text-foreground">
-                        ${(item.price * item.quantity).toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="border-t border-border bg-card">
-            <div className="px-6 py-5 space-y-4">
-              <div className="flex justify-between items-center pt-1">
-                <span className="text-sm font-semibold text-foreground">
-                  Total
-                </span>
-                <span className="text-xl font-bold text-primary">
-                  ${subtotal.toFixed(2)}
-                </span>
-              </div>
-              <Button
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 text-sm font-medium transition-colors"
-                disabled={cartItems.length === 0 || submitting}
-                onClick={handlePlaceOrder}
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Placing Order...
-                  </>
-                ) : (
-                  "Place Order"
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Bottom Sheet */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
-          {/* Bottom Bar - Always Visible */}
-          <div 
-            className="bg-card border-t border-border px-4 py-3 cursor-pointer"
-            onClick={() => setIsCartOpen(!isCartOpen)}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <ShoppingCart className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="text-sm font-semibold text-foreground">Current Order</p>
-                  <p className="text-xs text-muted-foreground">
-                    {totalItems} {totalItems === 1 ? 'item' : 'items'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-lg font-bold text-primary">
-                  ${subtotal.toFixed(2)}
-                </span>
-                <ChevronUp className={`w-5 h-5 text-muted-foreground transition-transform ${isCartOpen ? 'rotate-180' : ''}`} />
-              </div>
-            </div>
-          </div>
-
-          {/* Sliding Cart Panel */}
-          <div 
-            className={`bg-card border-t border-border transition-all duration-300 ease-in-out ${
-              isCartOpen ? 'max-h-[80vh]' : 'max-h-0'
-            } overflow-hidden`}
-          >
-            <div className="flex flex-col h-full max-h-[80vh]">
-              {/* Order Form - Mobile */}
-              <div className="px-4 py-4 border-b border-border space-y-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="customerNameMobile" className="text-xs font-medium">
-                    Customer Name *
-                  </Label>
-                  <Input
-                    id="customerNameMobile"
-                    placeholder="Enter customer name"
-                    value={customerName}
-                    // @ts-ignore
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    className="h-9 bg-muted border-border text-sm"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-medium">Payment Type *</Label>
-                  <RadioGroup value={paymentType} onValueChange={(value) => setPaymentType(value as "CASH" | "CARD")}>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="CASH" id="cashMobile" />
-                      <Label htmlFor="cashMobile" className="text-sm font-normal cursor-pointer">
-                        Cash
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="CARD" id="cardMobile" />
-                      <Label htmlFor="cardMobile" className="text-sm font-normal cursor-pointer">
-                        Credit Card
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="seatingMobile" className="text-xs font-medium">
-                    Seating Location
-                  </Label>
-                  <Input
-                    id="seatingMobile"
-                    placeholder="e.g., Table 5, Booth 2"
-                    value={seating}
-                    // @ts-ignore
-                    onChange={(e) => setSeating(e.target.value)}
-                    className="h-9 bg-muted border-border text-sm"
-                  />
-                </div>
-              </div>
-
+          {/* Conditional Content - Cart Items or Order Form */}
+          {!showOrderForm ? (
+            <>
               {/* Cart Items - Scrollable */}
               <div className="flex-1 overflow-y-auto">
                 {cartItems.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-32 px-6 text-muted-foreground">
-                    <ShoppingCart className="w-12 h-12 mb-3 opacity-30" />
+                  <div className="flex flex-col items-center justify-center h-full px-6 text-muted-foreground">
+                    <ShoppingCart className="w-14 h-14 mb-3 opacity-30" />
                     <p className="font-medium text-muted-foreground text-sm">
                       No items yet
                     </p>
@@ -564,7 +358,7 @@ export default function NewOrder() {
                     {cartItems.map((item) => (
                       <div
                         key={item.id}
-                        className="bg-muted/40 rounded-lg p-3.5 border border-border"
+                        className="bg-muted/40 rounded-lg p-3.5 border border-border transition-all hover:border-primary/50"
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex-1 min-w-0">
@@ -578,7 +372,7 @@ export default function NewOrder() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 -mt-1 -mr-1 hover:bg-destructive/10 hover:text-destructive text-muted-foreground"
+                            className="h-7 w-7 -mt-1 -mr-1 hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-colors"
                             onClick={() => removeFromCart(item.id)}
                           >
                             <X className="w-3.5 h-3.5" />
@@ -616,23 +410,348 @@ export default function NewOrder() {
                 )}
               </div>
 
-              {/* Place Order Button */}
-              <div className="border-t border-border bg-card p-4">
-                <Button
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 text-sm font-medium"
-                  disabled={cartItems.length === 0 || submitting}
-                  onClick={handlePlaceOrder}
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Placing Order...
-                    </>
-                  ) : (
-                    "Place Order"
-                  )}
-                </Button>
+              <div className="border-t border-border bg-card">
+                <div className="px-6 py-5 space-y-4">
+                  <div className="flex justify-between items-center pt-1">
+                    <span className="text-sm font-semibold text-foreground">
+                      Total
+                    </span>
+                    <span className="text-xl font-bold text-primary">
+                      ${subtotal.toFixed(2)}
+                    </span>
+                  </div>
+                  <Button
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 text-sm font-medium transition-colors"
+                    disabled={cartItems.length === 0}
+                    onClick={handlePlaceOrderClick}
+                  >
+                    Place Order
+                  </Button>
+                </div>
               </div>
+            </>
+          ) : (
+            <>
+              {/* Order Form */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="customerName" className="text-sm font-medium">
+                    Customer Name *
+                  </Label>
+                  <Input
+                    id="customerName"
+                    placeholder="Enter customer name"
+                    value={customerName}
+                    // @ts-ignore
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="h-9 bg-muted border-border text-sm"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Payment Type *</Label>
+                  <RadioGroup value={paymentType} onValueChange={(value) => setPaymentType(value as "CASH" | "CARD")}>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="CASH" id="cash" />
+                      <Label htmlFor="cash" className="text-sm font-normal cursor-pointer">
+                        Cash
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="CARD" id="card" />
+                      <Label htmlFor="card" className="text-sm font-normal cursor-pointer">
+                        Credit Card
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="seating" className="text-sm font-medium">
+                    Seating Location
+                  </Label>
+                  <Input
+                    id="seating"
+                    placeholder="e.g., Table 5, Booth 2"
+                    value={seating}
+                    // @ts-ignore
+                    onChange={(e) => setSeating(e.target.value)}
+                    className="h-9 bg-muted border-border text-sm"
+                  />
+                </div>
+
+                {/* Order Summary */}
+                <div className="pt-4 border-t border-border">
+                  <h3 className="text-sm font-semibold text-foreground mb-3">Order Summary</h3>
+                  <div className="space-y-2">
+                    {cartItems.map((item) => (
+                      <div key={item.id} className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          {item.quantity}x {item.name}
+                        </span>
+                        <span className="font-medium text-foreground">
+                          ${(item.price * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-border bg-card">
+                <div className="px-6 py-5 space-y-4">
+                  <div className="flex justify-between items-center pt-1">
+                    <span className="text-sm font-semibold text-foreground">
+                      Total
+                    </span>
+                    <span className="text-xl font-bold text-primary">
+                      ${subtotal.toFixed(2)}
+                    </span>
+                  </div>
+                  <Button
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 text-sm font-medium transition-colors"
+                    disabled={submitting}
+                    onClick={handleConfirmOrder}
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Confirming Order...
+                      </>
+                    ) : (
+                      "Confirm Order"
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Mobile Bottom Sheet */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
+          {/* Bottom Bar - Always Visible */}
+          <div 
+            className="bg-card border-t border-border px-4 py-3 cursor-pointer"
+            onClick={() => !showOrderForm && setIsCartOpen(!isCartOpen)}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <ShoppingCart className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    {showOrderForm ? "Order Details" : "Current Order"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {totalItems} {totalItems === 1 ? 'item' : 'items'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-lg font-bold text-primary">
+                  ${subtotal.toFixed(2)}
+                </span>
+                {!showOrderForm && (
+                  <ChevronUp className={`w-5 h-5 text-muted-foreground transition-transform ${isCartOpen ? 'rotate-180' : ''}`} />
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Sliding Cart Panel */}
+          <div 
+            className={`bg-card border-t border-border transition-all duration-300 ease-in-out ${
+              (isCartOpen && !showOrderForm) || showOrderForm ? 'max-h-[80vh]' : 'max-h-0'
+            } overflow-hidden`}
+          >
+            <div className="flex flex-col h-full max-h-[80vh]">
+              {!showOrderForm ? (
+                <>
+                  {/* Cart Items - Scrollable */}
+                  <div className="flex-1 overflow-y-auto">
+                    {cartItems.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center h-32 px-6 text-muted-foreground">
+                        <ShoppingCart className="w-12 h-12 mb-3 opacity-30" />
+                        <p className="font-medium text-muted-foreground text-sm">
+                          No items yet
+                        </p>
+                        <p className="text-xs text-center mt-1 text-muted-foreground/80">
+                          Select products to start
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="p-4 space-y-3">
+                        {cartItems.map((item) => (
+                          <div
+                            key={item.id}
+                            className="bg-muted/40 rounded-lg p-3.5 border border-border"
+                          >
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-sm text-foreground truncate">
+                                  {item.name}
+                                </h4>
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                  ${item.price.toFixed(2)}
+                                </p>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 -mt-1 -mr-1 hover:bg-destructive/10 hover:text-destructive text-muted-foreground"
+                                onClick={() => removeFromCart(item.id)}
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-8 w-8 border-border hover:bg-muted bg-transparent"
+                                  onClick={() => updateQuantity(item.id, -1)}
+                                >
+                                  <Minus className="w-3 h-3" />
+                                </Button>
+                                <span className="w-6 text-center font-semibold text-sm text-foreground">
+                                  {item.quantity}
+                                </span>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-8 w-8 border-border hover:bg-muted bg-transparent"
+                                  onClick={() => updateQuantity(item.id, 1)}
+                                >
+                                  <Plus className="w-3 h-3" />
+                                </Button>
+                              </div>
+                              <span className="font-semibold text-sm text-foreground">
+                                ${(item.price * item.quantity).toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Place Order Button */}
+                  <div className="border-t border-border bg-card p-4">
+                    <Button
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 text-sm font-medium"
+                      disabled={cartItems.length === 0}
+                      onClick={handlePlaceOrderClick}
+                    >
+                      Place Order
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Order Form - Mobile */}
+                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="mb-2 -ml-2"
+                      onClick={handleBackToCart}
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-2" />
+                      Back to Cart
+                    </Button>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="customerNameMobile" className="text-xs font-medium">
+                        Customer Name *
+                      </Label>
+                      <Input
+                        id="customerNameMobile"
+                        placeholder="Enter customer name"
+                        value={customerName}
+                        // @ts-ignore
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        className="h-9 bg-muted border-border text-sm"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium">Payment Type *</Label>
+                      <RadioGroup value={paymentType} onValueChange={(value) => setPaymentType(value as "CASH" | "CARD")}>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="CASH" id="cashMobile" />
+                          <Label htmlFor="cashMobile" className="text-sm font-normal cursor-pointer">
+                            Cash
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="CARD" id="cardMobile" />
+                          <Label htmlFor="cardMobile" className="text-sm font-normal cursor-pointer">
+                            Credit Card
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="seatingMobile" className="text-xs font-medium">
+                        Seating Location
+                      </Label>
+                      <Input
+                        id="seatingMobile"
+                        placeholder="e.g., Table 5, Booth 2"
+                        value={seating}
+                        // @ts-ignore
+                        onChange={(e) => setSeating(e.target.value)}
+                        className="h-9 bg-muted border-border text-sm"
+                      />
+                    </div>
+
+                    {/* Order Summary - Mobile */}
+                    <div className="pt-3 border-t border-border">
+                      <h3 className="text-xs font-semibold text-foreground mb-2">Order Summary</h3>
+                      <div className="space-y-1.5">
+                        {cartItems.map((item) => (
+                          <div key={item.id} className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">
+                              {item.quantity}x {item.name}
+                            </span>
+                            <span className="font-medium text-foreground">
+                              ${(item.price * item.quantity).toFixed(2)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Confirm Order Button - Mobile */}
+                  <div className="border-t border-border bg-card p-4 space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-semibold text-foreground">
+                        Total
+                      </span>
+                      <span className="text-lg font-bold text-primary">
+                        ${subtotal.toFixed(2)}
+                      </span>
+                    </div>
+                    <Button
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 text-sm font-medium"
+                      disabled={submitting}
+                      onClick={handleConfirmOrder}
+                    >
+                      {submitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Confirming Order...
+                        </>
+                      ) : (
+                        "Confirm Order"
+                      )}
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
