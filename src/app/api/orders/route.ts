@@ -8,12 +8,28 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as {
       customerName?: string;
+      paymentType?: "CASH" | "CARD";
+      seating?: string;
       items?: { productId: string; quantity: number }[];
       subtotal?: number;
     };
-    const { customerName, items, subtotal } = body;
+    const { customerName, paymentType, seating, items, subtotal } = body;
 
     // Validate request
+    if (!customerName || !customerName.trim()) {
+      return NextResponse.json(
+        { error: "Customer name is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!paymentType || !["CASH", "CARD"].includes(paymentType)) {
+      return NextResponse.json(
+        { error: "Valid payment type is required (CASH or CARD)" },
+        { status: 400 }
+      );
+    }
+
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
         { error: "Items are required" },
@@ -31,7 +47,9 @@ export async function POST(request: NextRequest) {
     // Create order with items
     const order = await prisma.order.create({
       data: {
-        customerName: customerName || null,
+        customerName: customerName.trim(),
+        paymentType,
+        Seating: seating?.trim() || null,
         subtotal,
         items: {
           create: items.map((item: { productId: string; quantity: number }) => ({

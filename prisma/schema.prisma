@@ -46,7 +46,14 @@ model Order {
   customerName String?
   items        OrderItem[]
   subtotal     Float
+  paymentType  PaymentType
+  Seating       String?
   createdAt    DateTime    @default(now())
+}
+
+enum PaymentType {
+  CASH
+  CARD
 }
 
 model OrderItem {

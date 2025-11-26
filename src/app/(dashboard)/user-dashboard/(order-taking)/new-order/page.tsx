@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Minus, ShoppingCart, Search, X, Loader2, ChevronUp } from "lucide-react";
+import { Plus, Minus, ShoppingCart, X, Loader2, ChevronUp } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,6 +16,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { EmptyHookahState } from "@/components/empty-hookah-state";
 import { toast } from "sonner";
 
@@ -36,7 +38,8 @@ interface CartState {
 
 export default function NewOrder() {
   const [customerName, setCustomerName] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [paymentType, setPaymentType] = useState<"CASH" | "CARD">("CASH");
+  const [seating, setSeating] = useState("");
   const [cart, setCart] = useState<CartState>({});
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,10 +74,6 @@ export default function NewOrder() {
 
     fetchProducts();
   }, []);
-
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const addToCart = (product: Product) => {
     setCart((prev) => ({
@@ -140,6 +139,8 @@ export default function NewOrder() {
       setSubmitting(true);
       const orderData = {
         customerName: customerName.trim(),
+        paymentType,
+        seating: seating.trim() || null,
         items: cartItems.map((item) => ({
           productId: item.id,
           quantity: item.quantity,
@@ -163,7 +164,8 @@ export default function NewOrder() {
 
       setCart({});
       setCustomerName("");
-      setSearchQuery("");
+      setPaymentType("CASH");
+      setSeating("");
       setIsCartOpen(false);
 
       toast.success("Order has been successfully placed!", {
@@ -226,26 +228,6 @@ export default function NewOrder() {
       <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
         {/* Products Section */}
         <div className="flex-1 flex flex-col overflow-hidden pb-20 md:pb-0">
-          <div className="gap-2 sm:gap-3 flex flex-col sm:flex-row px-3 sm:px-6 py-3 sm:py-4 bg-card border-b border-border">
-            <Input
-              placeholder="Customer Name"
-              value={customerName}
-              // @ts-ignore
-              onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full sm:max-w-md h-9 bg-muted border-border text-sm"
-            />
-            <div className="relative w-full sm:max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Search products..."
-                value={searchQuery}
-                // @ts-ignore
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 bg-muted border-border text-sm"
-              />
-            </div>
-          </div>
-
           <div className="flex-1 overflow-y-auto p-3 sm:p-6">
             {loading ? (
               <div className="flex flex-col items-center justify-center h-full">
@@ -270,21 +252,13 @@ export default function NewOrder() {
                   Retry
                 </Button>
               </div>
-            ) : filteredProducts.length === 0 ? (
+            ) : products.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full">
-                <p className="text-muted-foreground text-sm">
-                  {searchQuery ? (
-                    "No products found"
-                  ) : (
-                    <>
-                      <EmptyHookahState />
-                    </>
-                  )}
-                </p>
+                <EmptyHookahState />
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-                {filteredProducts.map((product) => {
+                {products.map((product) => {
                   const inCart = cart[product.id];
                   const isSelected = inCart && inCart.quantity > 0;
 
@@ -342,6 +316,55 @@ export default function NewOrder() {
                   {totalItems}
                 </Badge>
               )}
+            </div>
+          </div>
+
+          {/* Order Form */}
+          <div className="px-6 py-4 border-b border-border space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="customerName" className="text-sm font-medium">
+                Customer Name *
+              </Label>
+              <Input
+                id="customerName"
+                placeholder="Enter customer name"
+                value={customerName}
+                // @ts-ignore
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="h-9 bg-muted border-border text-sm"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Payment Type *</Label>
+              <RadioGroup value={paymentType} onValueChange={(value) => setPaymentType(value as "CASH" | "CARD")}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="CASH" id="cash" />
+                  <Label htmlFor="cash" className="text-sm font-normal cursor-pointer">
+                    Cash
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="CARD" id="card" />
+                  <Label htmlFor="card" className="text-sm font-normal cursor-pointer">
+                    Credit Card
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="seating" className="text-sm font-medium">
+                Seating Location
+              </Label>
+              <Input
+                id="seating"
+                placeholder="e.g., Table 5, Booth 2"
+                value={seating}
+                // @ts-ignore
+                onChange={(e) => setSeating(e.target.value)}
+                className="h-9 bg-muted border-border text-sm"
+              />
             </div>
           </div>
 
@@ -471,14 +494,63 @@ export default function NewOrder() {
           {/* Sliding Cart Panel */}
           <div 
             className={`bg-card border-t border-border transition-all duration-300 ease-in-out ${
-              isCartOpen ? 'max-h-[70vh]' : 'max-h-0'
+              isCartOpen ? 'max-h-[80vh]' : 'max-h-0'
             } overflow-hidden`}
           >
-            <div className="flex flex-col h-full max-h-[70vh]">
+            <div className="flex flex-col h-full max-h-[80vh]">
+              {/* Order Form - Mobile */}
+              <div className="px-4 py-4 border-b border-border space-y-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="customerNameMobile" className="text-xs font-medium">
+                    Customer Name *
+                  </Label>
+                  <Input
+                    id="customerNameMobile"
+                    placeholder="Enter customer name"
+                    value={customerName}
+                    // @ts-ignore
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="h-9 bg-muted border-border text-sm"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium">Payment Type *</Label>
+                  <RadioGroup value={paymentType} onValueChange={(value) => setPaymentType(value as "CASH" | "CARD")}>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="CASH" id="cashMobile" />
+                      <Label htmlFor="cashMobile" className="text-sm font-normal cursor-pointer">
+                        Cash
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="CARD" id="cardMobile" />
+                      <Label htmlFor="cardMobile" className="text-sm font-normal cursor-pointer">
+                        Credit Card
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="seatingMobile" className="text-xs font-medium">
+                    Seating Location
+                  </Label>
+                  <Input
+                    id="seatingMobile"
+                    placeholder="e.g., Table 5, Booth 2"
+                    value={seating}
+                    // @ts-ignore
+                    onChange={(e) => setSeating(e.target.value)}
+                    className="h-9 bg-muted border-border text-sm"
+                  />
+                </div>
+              </div>
+
               {/* Cart Items - Scrollable */}
               <div className="flex-1 overflow-y-auto">
                 {cartItems.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-40 px-6 text-muted-foreground">
+                  <div className="flex flex-col items-center justify-center h-32 px-6 text-muted-foreground">
                     <ShoppingCart className="w-12 h-12 mb-3 opacity-30" />
                     <p className="font-medium text-muted-foreground text-sm">
                       No items yet

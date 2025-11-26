@@ -41,8 +41,6 @@ const sidebarData = {
       items: [
         { title: "New Order", url: "/user-dashboard/new-order" },
         { title: "All Orders", url: "/user-dashboard/all-orders" },
-        { title: "Edit Order", url: "/user-dashboard/edit-order" },
-        { title: "Delete Orders", url: "/user-dashboard/delete-orders" },
       ],
     },
     {
