@@ -106,3 +106,42 @@ export async function GET() {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const orderId = searchParams.get("id");
+
+    if (!orderId) {
+      return NextResponse.json(
+        { error: "Order ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Delete order items first (due to relation)
+    await prisma.orderItem.deleteMany({
+      where: {
+        orderId: orderId,
+      },
+    });
+
+    // Then delete the order
+    await prisma.order.delete({
+      where: {
+        id: orderId,
+      },
+    });
+
+    return NextResponse.json(
+      { message: "Order deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting order:", error);
+    return NextResponse.json(
+      { error: "Failed to delete order" },
+      { status: 500 }
+    );
+  }
+}
