@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
       data: {
         customerName: customerName.trim(),
         paymentType: finalPaymentType,
+        // @ts-ignore
         Seating: Seating?.trim() || null,
         subtotal,
         items: {
