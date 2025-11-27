@@ -34,7 +34,7 @@ const sidebarData = {
   },
   navMain: [
     {
-      title: "Order Taking",
+      title: "Order Tracking",
       url: "#",
       icon: MenuSquare,
       isActive: true,

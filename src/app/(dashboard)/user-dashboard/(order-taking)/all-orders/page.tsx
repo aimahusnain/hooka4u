@@ -154,7 +154,7 @@ export default function AllOrders() {
                   href="#"
                   className="text-muted-foreground hover:text-foreground text-sm"
                 >
-                  Order Taking
+                  Order Tracking
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />

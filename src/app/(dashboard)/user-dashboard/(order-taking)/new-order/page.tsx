@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Minus, ShoppingCart, X, Loader2, ChevronUp, ArrowLeft } from "lucide-react";
+import { Plus, Minus, ShoppingCart, X, Loader2, ChevronUp, ArrowLeft } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -47,6 +47,9 @@ export default function NewOrder() {
   const [submitting, setSubmitting] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showOrderForm, setShowOrderForm] = useState(false);
+  // <CHANGE> Added state for mobile sheet drawer
+  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
+  const [mobileSheetView, setMobileSheetView] = useState<"cart" | "form">("cart");
 
   // Fetch products from database
   useEffect(() => {
@@ -127,6 +130,21 @@ export default function NewOrder() {
     setShowOrderForm(true);
   };
 
+  // <CHANGE> Added handlers for mobile sheet
+  const handleMobileOrderButton = () => {
+    setIsMobileSheetOpen(true);
+    setMobileSheetView("cart");
+  };
+
+  const handleMobileSheetPlaceOrder = () => {
+    if (cartItems.length === 0) return;
+    setMobileSheetView("form");
+  };
+
+  const handleMobileSheetBackToCart = () => {
+    setMobileSheetView("cart");
+  };
+
   const handleBackToCart = () => {
     setShowOrderForm(false);
   };
@@ -143,7 +161,7 @@ export default function NewOrder() {
       return;
     }
 
-        if (!seating.trim()) {
+    if (!seating.trim()) {
       toast.info("Seating Location is required", {
         description: "Please enter a seating location before placing the order.",
         action: {
@@ -187,6 +205,9 @@ export default function NewOrder() {
       setSeating("");
       setShowOrderForm(false);
       setIsCartOpen(false);
+      // <CHANGE> Close mobile sheet after successful order
+      setIsMobileSheetOpen(false);
+      setMobileSheetView("cart");
 
       toast.success("Order has been successfully placed!", {
         // @ts-ignore
@@ -247,7 +268,8 @@ export default function NewOrder() {
       {/* Main Content */}
       <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
         {/* Products Section */}
-        <div className="flex-1 flex flex-col overflow-hidden pb-20 md:pb-0">
+        {/* <CHANGE> Added bg-zinc-50 for mobile background color and increased bottom padding for mobile button */}
+        <div className="flex-1 flex flex-col overflow-hidden pb-20 md:pb-0 bg-zinc-50 md:bg-background">
           <div className="flex-1 overflow-y-auto p-3 sm:p-6">
             {loading ? (
               <div className="flex flex-col items-center justify-center h-full">
@@ -287,7 +309,7 @@ export default function NewOrder() {
                       key={product.id}
                       className={`cursor-pointer transition-all border ${
                         isSelected
-                          ? "bg-violet-100 shadow-md"
+                          ? "bg-lime-100 shadow-md"
                           : "border-border/10 bg-card hover:border-primary/50 hover:shadow-sm"
                       }`}
                       onClick={() => handleProductClick(product)}
@@ -320,6 +342,244 @@ export default function NewOrder() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Mobile Bottom Button - Fixed Position */}
+        {/* <CHANGE> Added fixed bottom button for mobile that opens the sheet */}
+        {totalItems > 0 && (
+          <div className="fixed bottom-0 left-0 right-0 md:hidden bg-white border-t border-border p-4 shadow-lg">
+            <Button
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 text-base font-semibold rounded-lg"
+              onClick={handleMobileOrderButton}
+            >
+              <ShoppingCart className="w-5 h-5 mr-2" />
+              Place Order ({totalItems})
+            </Button>
+          </div>
+        )}
+
+        {/* Mobile Sheet Overlay */}
+        {/* <CHANGE> Added mobile sheet overlay with black theme */}
+        {isMobileSheetOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={() => setIsMobileSheetOpen(false)}
+          />
+        )}
+
+        {/* Mobile Sheet Drawer */}
+        {/* <CHANGE> Added animated sheet drawer from right side with dark theme */}
+<div
+          className={`fixed right-0 top-0 bottom-0 w-full max-w-md bg-zinc-950 text-white shadow-2xl z-50 md:hidden transition-transform duration-300 ease-out flex flex-col ${
+            isMobileSheetOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          {/* Sheet Header */}
+          <div className="flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-900">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              {mobileSheetView === "form" && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 -ml-2 hover:bg-zinc-800 text-white"
+                  onClick={handleMobileSheetBackToCart}
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </Button>
+              )}
+              <ShoppingCart className="w-5 h-5 text-lime-500" />
+              {mobileSheetView === "cart" ? "Current Order" : "Order Details"}
+            </h2>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 hover:bg-zinc-800 text-white"
+              onClick={() => setIsMobileSheetOpen(false)}
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+
+          {/* Sheet Content */}
+          {mobileSheetView === "cart" ? (
+            <>
+              {/* Cart Items View */}
+              <div className="flex-1 overflow-y-auto p-4">
+             {cartItems.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full text-zinc-400">
+                    <ShoppingCart className="w-12 h-12 mb-3 opacity-50" />
+                    <p className="font-medium text-sm">No items yet</p>
+                    <p className="text-xs text-center mt-1 text-zinc-500">
+                      Select products to start
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {cartItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="bg-zinc-800 rounded-lg p-3.5 border border-zinc-700 transition-all"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-sm text-white truncate">
+                              {item.name}
+                            </h4>
+                            <p className="text-xs text-zinc-400 mt-0.5">
+                              ${item.price.toFixed(2)}
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 -mt-1 -mr-1 hover:bg-red-500/20 hover:text-red-400 text-zinc-400 transition-colors"
+                            onClick={() => removeFromCart(item.id)}
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8 border-zinc-700 hover:bg-zinc-700 bg-transparent text-white hover:text-white"
+                              onClick={() => updateQuantity(item.id, -1)}
+                            >
+                              <Minus className="w-3 h-3" />
+                            </Button>
+                            <span className="w-6 text-center font-semibold text-sm text-white">
+                              {item.quantity}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8 border-zinc-700 hover:bg-zinc-700 bg-transparent text-white hover:text-white"
+                              onClick={() => updateQuantity(item.id, 1)}
+                            >
+                              <Plus className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <span className="font-semibold text-sm text-lime-500">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Cart Footer */}
+              <div className="border-t border-zinc-800 bg-zinc-900 p-4 space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-semibold text-white">Total</span>
+                  <span className="text-xl font-bold text-lime-500">
+                    ${subtotal.toFixed(2)}
+                  </span>
+                </div>
+                <Button
+                  className="w-full bg-lime-600 hover:bg-lime-700 text-white h-10 text-sm font-medium transition-colors"
+                  disabled={cartItems.length === 0}
+                  onClick={handleMobileSheetPlaceOrder}
+                >
+                  Continue to Order
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Order Form View */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="customerName" className="text-sm font-medium text-white">
+                    Customer Name *
+                  </Label>
+                  <Input
+                    id="customerName"
+                    placeholder="Enter customer name"
+                    value={customerName}
+                    // @ts-ignore
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="h-9 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 text-sm"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-white">Payment Type *</Label>
+                  <RadioGroup value={paymentType} onValueChange={(value) => setPaymentType(value as "CASH" | "CARD")}>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="CASH" id="cash" className="border-zinc-600 text-lime-500" />
+                      <Label htmlFor="cash" className="text-sm font-normal cursor-pointer text-white">
+                        Cash
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="CARD" id="card" className="border-zinc-600 text-lime-500" />
+                      <Label htmlFor="card" className="text-sm font-normal cursor-pointer text-white">
+                        Credit Card
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="seating" className="text-sm font-medium text-white">
+                    Seating Location *
+                  </Label>
+                  <Input
+                    id="seating"
+                    placeholder="e.g., Table 5, Booth 2"
+                    value={seating}
+                    // @ts-ignore
+                    onChange={(e) => setSeating(e.target.value)}
+                    className="h-9 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 text-sm"
+                  />
+                </div>
+
+                {/* Order Summary */}
+                <div className="pt-4 border-t border-zinc-700">
+                  <h3 className="text-sm font-semibold text-white mb-3">Order Summary</h3>
+                  <div className="space-y-2">
+                    {cartItems.map((item) => (
+                      <div key={item.id} className="flex justify-between text-sm">
+                        <span className="text-zinc-400">
+                          {item.quantity}x {item.name}
+                        </span>
+                        <span className="font-medium text-lime-500">
+                          ${(item.price * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Form Footer */}
+              <div className="border-t border-zinc-800 bg-zinc-900 p-4 space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-semibold text-white">Total</span>
+                  <span className="text-xl font-bold text-lime-500">
+                    ${subtotal.toFixed(2)}
+                  </span>
+                </div>
+                <Button
+                  className="w-full bg-lime-600 hover:bg-lime-700 text-white h-10 text-sm font-medium transition-colors disabled:opacity-50"
+                  disabled={submitting}
+                  onClick={handleConfirmOrder}
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    "Confirm Order"
+                  )}
+                </Button>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Desktop Sidebar - Hidden on Mobile */}
@@ -527,7 +787,7 @@ export default function NewOrder() {
                     {submitting ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Confirming Order...
+                        Processing...
                       </>
                     ) : (
                       "Confirm Order"
@@ -537,234 +797,6 @@ export default function NewOrder() {
               </div>
             </>
           )}
-        </div>
-
-        {/* Mobile Bottom Sheet */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
-          {/* Bottom Bar - Always Visible */}
-          <div 
-            className="bg-card border-t border-border px-4 py-3 cursor-pointer"
-            onClick={() => !showOrderForm && setIsCartOpen(!isCartOpen)}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <ShoppingCart className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {showOrderForm ? "Order Details" : "Current Order"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {totalItems} {totalItems === 1 ? 'item' : 'items'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-lg font-bold text-primary">
-                  ${subtotal.toFixed(2)}
-                </span>
-                {!showOrderForm && (
-                  <ChevronUp className={`w-5 h-5 text-muted-foreground transition-transform ${isCartOpen ? 'rotate-180' : ''}`} />
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Sliding Cart Panel */}
-          <div 
-            className={`bg-card border-t border-border transition-all duration-300 ease-in-out ${
-              (isCartOpen && !showOrderForm) || showOrderForm ? 'max-h-[80vh]' : 'max-h-0'
-            } overflow-hidden`}
-          >
-            <div className="flex flex-col h-full max-h-[80vh]">
-              {!showOrderForm ? (
-                <>
-                  {/* Cart Items - Scrollable */}
-                  <div className="flex-1 overflow-y-auto">
-                    {cartItems.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center h-32 px-6 text-muted-foreground">
-                        <ShoppingCart className="w-12 h-12 mb-3 opacity-30" />
-                        <p className="font-medium text-muted-foreground text-sm">
-                          No items yet
-                        </p>
-                        <p className="text-xs text-center mt-1 text-muted-foreground/80">
-                          Select products to start
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="p-4 space-y-3">
-                        {cartItems.map((item) => (
-                          <div
-                            key={item.id}
-                            className="bg-muted/40 rounded-lg p-3.5 border border-border"
-                          >
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-sm text-foreground truncate">
-                                  {item.name}
-                                </h4>
-                                <p className="text-xs text-muted-foreground mt-0.5">
-                                  ${item.price.toFixed(2)}
-                                </p>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 -mt-1 -mr-1 hover:bg-destructive/10 hover:text-destructive text-muted-foreground"
-                                onClick={() => removeFromCart(item.id)}
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </Button>
-                            </div>
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-8 w-8 border-border hover:bg-muted bg-transparent"
-                                  onClick={() => updateQuantity(item.id, -1)}
-                                >
-                                  <Minus className="w-3 h-3" />
-                                </Button>
-                                <span className="w-6 text-center font-semibold text-sm text-foreground">
-                                  {item.quantity}
-                                </span>
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-8 w-8 border-border hover:bg-muted bg-transparent"
-                                  onClick={() => updateQuantity(item.id, 1)}
-                                >
-                                  <Plus className="w-3 h-3" />
-                                </Button>
-                              </div>
-                              <span className="font-semibold text-sm text-foreground">
-                                ${(item.price * item.quantity).toFixed(2)}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Place Order Button */}
-                  <div className="border-t border-border bg-card p-4">
-                    <Button
-                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 text-sm font-medium"
-                      disabled={cartItems.length === 0}
-                      onClick={handlePlaceOrderClick}
-                    >
-                      Place Order
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* Order Form - Mobile */}
-                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="mb-2 -ml-2"
-                      onClick={handleBackToCart}
-                    >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Back to Cart
-                    </Button>
-
-                    <div className="space-y-1.5">
-                      <Label htmlFor="customerNameMobile" className="text-xs font-medium">
-                        Customer Name *
-                      </Label>
-                      <Input
-                        id="customerNameMobile"
-                        placeholder="Enter customer name"
-                        value={customerName}
-                        // @ts-ignore
-                        onChange={(e) => setCustomerName(e.target.value)}
-                        className="h-9 bg-muted border-border text-sm"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-medium">Payment Type *</Label>
-                      <RadioGroup value={paymentType} onValueChange={(value) => setPaymentType(value as "CASH" | "CARD")}>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="CASH" id="cashMobile" />
-                          <Label htmlFor="cashMobile" className="text-sm font-normal cursor-pointer">
-                            Cash
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="CARD" id="cardMobile" />
-                          <Label htmlFor="cardMobile" className="text-sm font-normal cursor-pointer">
-                            Credit Card
-                          </Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label htmlFor="seatingMobile" className="text-xs font-medium">
-                        Seating Location
-                      </Label>
-                      <Input
-                        id="seatingMobile"
-                        placeholder="e.g., Table 5, Booth 2"
-                        value={seating}
-                        // @ts-ignore
-                        onChange={(e) => setSeating(e.target.value)}
-                        className="h-9 bg-muted border-border text-sm"
-                      />
-                    </div>
-
-                    {/* Order Summary - Mobile */}
-                    <div className="pt-3 border-t border-border">
-                      <h3 className="text-xs font-semibold text-foreground mb-2">Order Summary</h3>
-                      <div className="space-y-1.5">
-                        {cartItems.map((item) => (
-                          <div key={item.id} className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">
-                              {item.quantity}x {item.name}
-                            </span>
-                            <span className="font-medium text-foreground">
-                              ${(item.price * item.quantity).toFixed(2)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Confirm Order Button - Mobile */}
-                  <div className="border-t border-border bg-card p-4 space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-semibold text-foreground">
-                        Total
-                      </span>
-                      <span className="text-lg font-bold text-primary">
-                        ${subtotal.toFixed(2)}
-                      </span>
-                    </div>
-                    <Button
-                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 text-sm font-medium"
-                      disabled={submitting}
-                      onClick={handleConfirmOrder}
-                    >
-                      {submitting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Confirming Order...
-                        </>
-                      ) : (
-                        "Confirm Order"
-                      )}
-                    </Button>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
         </div>
       </div>
     </div>
