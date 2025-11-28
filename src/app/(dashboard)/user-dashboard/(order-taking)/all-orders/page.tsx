@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Loader2, ShoppingBag, Clock, User, Package, DollarSign, Calendar, CreditCard, Banknote, MapPin, Trash2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Loader2, ShoppingBag, Clock, User, Package, DollarSign, Calendar, CreditCard, Banknote, MapPin, Trash2, Bell } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -53,28 +53,110 @@ export default function AllOrders() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [newOrderAnimation, setNewOrderAnimation] = useState<string | null>(null);
+  
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const previousOrderIdsRef = useRef<Set<string>>(new Set());
+  const isInitialLoadRef = useRef(true);
 
   useEffect(() => {
+    // Create audio element for notification sound
+    audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYHGWe77OVvSxMLT6Xl8Lhb');
+    
     fetchOrders();
+    
+    // Poll for new orders every 3 seconds
+    const pollInterval = setInterval(() => {
+      fetchOrders();
+    }, 3000);
+
+    return () => {
+      clearInterval(pollInterval);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
   }, []);
+
+  const playNotificationSound = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(err => {
+        console.log('Could not play notification sound:', err);
+      });
+    }
+  };
 
   const fetchOrders = async () => {
     try {
-      setLoading(true);
+      if (isInitialLoadRef.current) {
+        setLoading(true);
+      }
+      
       const response = await fetch("/api/orders/get");
       if (!response.ok) {
         throw new Error("Failed to fetch orders");
       }
       const data = await response.json();
-      setOrders(Array.isArray(data) ? data : []);
+      const fetchedOrders = Array.isArray(data) ? data : [];
+      
+      // Check for new orders (skip on initial load)
+      if (!isInitialLoadRef.current && previousOrderIdsRef.current.size > 0) {
+        const currentOrderIds = new Set(fetchedOrders.map((o: Order) => o.id));
+        const newOrders = fetchedOrders.filter(
+          (order: Order) => !previousOrderIdsRef.current.has(order.id)
+        );
+        
+        if (newOrders.length > 0) {
+          // Play notification sound
+          playNotificationSound();
+          
+          // Show browser notification if permitted
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('New Order Received!', {
+              body: `Order from ${newOrders[0].customerName || 'Guest'} - $${newOrders[0].subtotal.toFixed(2)}`,
+              icon: '/notification-icon.png',
+              badge: '/badge-icon.png'
+            });
+          }
+          
+          // Trigger animation for new orders
+          newOrders.forEach((order: Order) => {
+            setNewOrderAnimation(order.id);
+            setTimeout(() => setNewOrderAnimation(null), 2000);
+          });
+        }
+      }
+      
+      // Update previous order IDs
+      previousOrderIdsRef.current = new Set(fetchedOrders.map((o: Order) => o.id));
+      
+      setOrders(fetchedOrders);
       setError(null);
+      
+      if (isInitialLoadRef.current) {
+        isInitialLoadRef.current = false;
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load orders");
       console.error("Error fetching orders:", err);
     } finally {
-      setLoading(false);
+      if (isInitialLoadRef.current) {
+        setLoading(false);
+      }
     }
   };
+
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      await Notification.requestPermission();
+    }
+  };
+
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   const handleDeleteClick = (order: Order) => {
     setOrderToDelete(order);
@@ -94,8 +176,8 @@ export default function AllOrders() {
         throw new Error("Failed to delete order");
       }
 
-      // Remove the order from the state
       setOrders((prevOrders) => prevOrders.filter((o) => o.id !== orderToDelete.id));
+      previousOrderIdsRef.current.delete(orderToDelete.id);
       setDeleteDialogOpen(false);
       setOrderToDelete(null);
     } catch (err) {
@@ -168,7 +250,6 @@ export default function AllOrders() {
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="flex-1 overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
         {loading ? (
           <div className="flex flex-col items-center justify-center h-full">
@@ -201,7 +282,7 @@ export default function AllOrders() {
                   </p>
                 </div>
                 <Badge variant="outline" className="px-3 py-1.5 text-sm">
-                  <Clock className="w-3.5 h-3.5 mr-1.5" />
+                  <Bell className="w-3.5 h-3.5 mr-1.5 animate-pulse" />
                   Live View
                 </Badge>
               </div>
@@ -210,7 +291,11 @@ export default function AllOrders() {
                 {orders.map((order) => (
                   <Card
                     key={order.id}
-                    className="bg-card border-border hover:shadow-lg transition-all duration-200 hover:border-primary/50 flex flex-col"
+                    className={`bg-card border-border hover:shadow-lg transition-all duration-200 hover:border-primary/50 flex flex-col ${
+                      newOrderAnimation === order.id 
+                        ? 'animate-[pulse_0.5s_ease-in-out_3] border-primary shadow-lg shadow-primary/20' 
+                        : ''
+                    }`}
                   >
                     <CardHeader className="pb-3 space-y-3">
                       <div className="flex items-start justify-between gap-2">
@@ -303,7 +388,6 @@ export default function AllOrders() {
         )}
       </div>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
