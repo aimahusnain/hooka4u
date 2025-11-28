@@ -44,13 +44,11 @@ const sidebarData = {
       ],
     },
     {
-      title: "Models",
+      title: "Admin",
       url: "#",
       icon: Bot,
       items: [
-        { title: "Genesis", url: "#" },
-        { title: "Explorer", url: "#" },
-        { title: "Quantum", url: "#" },
+        { title: "Menu", url: "/user-dashboard/menu" },
       ],
     },
     {
