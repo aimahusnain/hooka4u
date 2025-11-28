@@ -177,7 +177,7 @@ export default function NewOrder() {
       const orderData = {
         customerName: customerName.trim(),
         paymentType,
-        seating: seating.trim() || null,
+        Seating: seating.trim() || null,
         items: cartItems.map((item) => ({
           productId: item.id,
           quantity: item.quantity,

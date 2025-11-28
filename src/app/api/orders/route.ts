@@ -13,7 +13,10 @@ export async function POST(request: NextRequest) {
       items?: { productId: string; quantity: number }[];
       subtotal?: number;
     };
-    const { customerName, paymentType, Seating, items, subtotal } = body;
+    
+    // Handle both 'Seating' and 'seating' for flexibility
+    const { customerName, paymentType, items, subtotal } = body;
+    const Seating = body.Seating || body.Seating;
 
     // Validate request
     if (!customerName || !customerName.trim()) {
@@ -82,8 +85,6 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-
 
 export async function DELETE(request: NextRequest) {
   try {

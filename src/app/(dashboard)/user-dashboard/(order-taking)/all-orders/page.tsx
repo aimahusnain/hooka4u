@@ -54,6 +54,7 @@ export default function AllOrders() {
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [newOrderAnimation, setNewOrderAnimation] = useState<string | null>(null);
+  const [lastFetchTime, setLastFetchTime] = useState<Date | null>(null);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const previousOrderIdsRef = useRef<Set<string>>(new Set());
@@ -63,12 +64,16 @@ export default function AllOrders() {
     // Create audio element for notification sound
     audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYHGWe77OVvSxMLT6Xl8Lhb');
     
+    // Initial fetch
     fetchOrders();
     
-    // Poll for new orders every 3 seconds
+    // Request notification permission
+    requestNotificationPermission();
+
+    // Fetch orders every 1 minute (60000ms)
     const pollInterval = setInterval(() => {
-      fetchOrders();
-    }, 3000);
+      fetchOrdersQuietly();
+    }, 60000); // 1 minute
 
     return () => {
       clearInterval(pollInterval);
@@ -78,6 +83,25 @@ export default function AllOrders() {
       }
     };
   }, []);
+
+  const handleNewOrder = (newOrder: Order) => {
+    // Play notification sound
+    playNotificationSound();
+    
+    // Show browser notification
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('🔔 New Order Received!', {
+        body: `Order from ${newOrder.customerName || 'Guest'} - $${newOrder.subtotal.toFixed(2)}`,
+        icon: '/notification-icon.png',
+        badge: '/badge-icon.png',
+        tag: newOrder.id,
+      });
+    }
+    
+    // Trigger animation
+    setNewOrderAnimation(newOrder.id);
+    setTimeout(() => setNewOrderAnimation(null), 3000);
+  };
 
   const playNotificationSound = () => {
     if (audioRef.current) {
@@ -90,10 +114,7 @@ export default function AllOrders() {
 
   const fetchOrders = async () => {
     try {
-      if (isInitialLoadRef.current) {
-        setLoading(true);
-      }
-      
+      setLoading(true);
       const response = await fetch("/api/orders/get");
       if (!response.ok) {
         throw new Error("Failed to fetch orders");
@@ -101,50 +122,51 @@ export default function AllOrders() {
       const data = await response.json();
       const fetchedOrders = Array.isArray(data) ? data : [];
       
-      // Check for new orders (skip on initial load)
-      if (!isInitialLoadRef.current && previousOrderIdsRef.current.size > 0) {
-        const currentOrderIds = new Set(fetchedOrders.map((o: Order) => o.id));
-        const newOrders = fetchedOrders.filter(
-          (order: Order) => !previousOrderIdsRef.current.has(order.id)
-        );
-        
-        if (newOrders.length > 0) {
-          // Play notification sound
-          playNotificationSound();
-          
-          // Show browser notification if permitted
-          if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('New Order Received!', {
-              body: `Order from ${newOrders[0].customerName || 'Guest'} - $${newOrders[0].subtotal.toFixed(2)}`,
-              icon: '/notification-icon.png',
-              badge: '/badge-icon.png'
-            });
-          }
-          
-          // Trigger animation for new orders
-          newOrders.forEach((order: Order) => {
-            setNewOrderAnimation(order.id);
-            setTimeout(() => setNewOrderAnimation(null), 2000);
-          });
-        }
-      }
-      
-      // Update previous order IDs
-      previousOrderIdsRef.current = new Set(fetchedOrders.map((o: Order) => o.id));
-      
       setOrders(fetchedOrders);
-      setError(null);
+      setLastFetchTime(new Date());
       
+      // Initialize previous order IDs
       if (isInitialLoadRef.current) {
+        previousOrderIdsRef.current = new Set(fetchedOrders.map((o: Order) => o.id));
         isInitialLoadRef.current = false;
       }
+      
+      setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load orders");
       console.error("Error fetching orders:", err);
     } finally {
-      if (isInitialLoadRef.current) {
-        setLoading(false);
+      setLoading(false);
+    }
+  };
+
+  // Quiet fetch for polling (no loading state change)
+  const fetchOrdersQuietly = async () => {
+    try {
+      const response = await fetch("/api/orders/get");
+      if (!response.ok) return;
+      
+      const data = await response.json();
+      const fetchedOrders = Array.isArray(data) ? data : [];
+      
+      // Check for new orders
+      const currentOrderIds = new Set(fetchedOrders.map((o: Order) => o.id));
+      const newOrders = fetchedOrders.filter(
+        (order: Order) => !previousOrderIdsRef.current.has(order.id)
+      );
+      
+      if (newOrders.length > 0) {
+        // Trigger notification for each new order
+        newOrders.forEach((order: Order) => handleNewOrder(order));
       }
+      
+      // Update orders and previous IDs
+      setOrders(fetchedOrders);
+      previousOrderIdsRef.current = currentOrderIds;
+      setLastFetchTime(new Date());
+      
+    } catch (err) {
+      console.error("Error fetching orders quietly:", err);
     }
   };
 
@@ -153,10 +175,6 @@ export default function AllOrders() {
       await Notification.requestPermission();
     }
   };
-
-  useEffect(() => {
-    requestNotificationPermission();
-  }, []);
 
   const handleDeleteClick = (order: Order) => {
     setOrderToDelete(order);
@@ -208,6 +226,16 @@ export default function AllOrders() {
     });
   };
 
+  const getTimeSinceLastFetch = () => {
+    if (!lastFetchTime) return "Never";
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - lastFetchTime.getTime()) / 1000);
+    
+    if (diffInSeconds < 10) return "Just now";
+    if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
+    return `${Math.floor(diffInSeconds / 60)}m ago`;
+  };
+
   const getTotalItems = (items: OrderItem[]) => {
     return items.reduce((sum, item) => sum + item.quantity, 0);
   };
@@ -226,27 +254,37 @@ export default function AllOrders() {
   return (
     <div className="flex flex-col h-screen bg-background">
       <header className="flex h-14 shrink-0 items-center gap-3 bg-card border-b border-border">
-        <div className="flex items-center gap-3 px-5 w-full">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink
-                  href="#"
-                  className="text-muted-foreground hover:text-foreground text-sm"
-                >
-                  Order Tracking
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage className="text-foreground text-sm font-medium">
-                  All Orders
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+        <div className="flex items-center gap-3 px-5 w-full justify-between">
+          <div className="flex items-center gap-3">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink
+                    href="#"
+                    className="text-muted-foreground hover:text-foreground text-sm"
+                  >
+                    Order Tracking
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="text-foreground text-sm font-medium">
+                    All Orders
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+          
+          {/* Last Update Time */}
+          <div className="flex items-center gap-2">
+            <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">
+              Updated {getTimeSinceLastFetch()}
+            </span>
+          </div>
         </div>
       </header>
 
@@ -262,13 +300,16 @@ export default function AllOrders() {
               Error loading orders
             </div>
             <p className="text-muted-foreground text-xs">{error}</p>
+            <Button onClick={fetchOrders} variant="outline" className="mt-4">
+              Retry
+            </Button>
           </div>
         ) : orders.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full">
             <ShoppingBag className="w-16 h-16 text-muted-foreground/30 mb-4" />
             <p className="text-muted-foreground text-sm font-medium">No orders yet</p>
             <p className="text-muted-foreground/70 text-xs mt-1">
-              Orders will appear here once placed
+              Checking for new orders every minute...
             </p>
           </div>
         ) : (
@@ -283,7 +324,7 @@ export default function AllOrders() {
                 </div>
                 <Badge variant="outline" className="px-3 py-1.5 text-sm">
                   <Bell className="w-3.5 h-3.5 mr-1.5 animate-pulse" />
-                  Live View
+                  Auto-refresh (1 min)
                 </Badge>
               </div>
 
@@ -291,9 +332,9 @@ export default function AllOrders() {
                 {orders.map((order) => (
                   <Card
                     key={order.id}
-                    className={`bg-card border-border hover:shadow-lg transition-all duration-200 hover:border-primary/50 flex flex-col ${
+                    className={`bg-card border-border hover:shadow-lg transition-all duration-300 hover:border-primary/50 flex flex-col ${
                       newOrderAnimation === order.id 
-                        ? 'animate-[pulse_0.5s_ease-in-out_3] border-primary shadow-lg shadow-primary/20' 
+                        ? 'animate-[pulse_0.5s_ease-in-out_4] border-primary border-2 shadow-xl shadow-primary/30 scale-105' 
                         : ''
                     }`}
                   >
@@ -388,6 +429,7 @@ export default function AllOrders() {
         )}
       </div>
 
+      {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -403,7 +445,7 @@ export default function AllOrders() {
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-white"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deleting ? (
                 <>
