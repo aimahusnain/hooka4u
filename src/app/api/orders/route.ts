@@ -23,6 +23,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate Seating is provided
+    if (!Seating || !Seating.trim()) {
+      return NextResponse.json(
+        { error: "Seating is required" },
+        { status: 400 }
+      );
+    }
+
     // Default to CASH if paymentType is not provided
     const finalPaymentType = paymentType && ["CASH", "CARD"].includes(paymentType) 
       ? paymentType 
@@ -47,8 +55,7 @@ export async function POST(request: NextRequest) {
       data: {
         customerName: customerName.trim(),
         paymentType: finalPaymentType,
-        // @ts-ignore
-        Seating: Seating?.trim() || null,
+        Seating: Seating.trim(),
         subtotal,
         items: {
           create: items.map((item: { productId: string; quantity: number }) => ({
