@@ -3,6 +3,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import type { Metadata } from "next";
 import "../../globals.css";
 import { cookies } from "next/headers";
+import ThemeContextProvider from "@/components/ThemeContext";
 
 export const metadata: Metadata = {
   title: "Hooka4u User Dashboard - Your Hookah, Your Way",
@@ -20,10 +21,12 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SidebarProvider defaultOpen={defaultOpen} className="bg-blue-400">
-          <AppSidebar />
-          <SidebarInset>{children}</SidebarInset>
-        </SidebarProvider>
+        <ThemeContextProvider>
+          <SidebarProvider defaultOpen={defaultOpen} className="bg-blue-400">
+            <AppSidebar />
+            <SidebarInset>{children}</SidebarInset>
+          </SidebarProvider>
+        </ThemeContextProvider>
       </body>
     </html>
   );

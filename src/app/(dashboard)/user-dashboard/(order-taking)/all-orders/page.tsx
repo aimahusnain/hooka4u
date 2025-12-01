@@ -264,263 +264,261 @@ export default function AllOrders() {
 
   const pendingOrders = orders.filter(o => !o.status || o.status === "PENDING");
   const deliveredOrders = orders.filter(o => o.status === "DELIVERED");
-
-  return (
-    <div className="flex flex-col h-screen bg-zinc-50">
-      {/* Header */}
-      <header className="flex h-14 shrink-0 items-center gap-3 bg-white border-b border-zinc-200">
-        <div className="flex items-center gap-3 px-5 w-full justify-between">
-          <div className="flex items-center gap-3">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="h-4 bg-zinc-200" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#" className="text-zinc-600 hover:text-zinc-900 text-sm">
-                    Order Tracking
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="text-zinc-900 text-sm font-medium">
-                    All Orders
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-xs text-zinc-500">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <Clock className="w-3.5 h-3.5" />
-              <span>Updated {getTimeSinceLastFetch()}</span>
-            </div>
+return (
+  <div className="flex flex-col h-screen bg-background">
+    {/* Header */}
+    <header className="flex h-14 shrink-0 items-center gap-3 bg-card border-b border-border">
+      <div className="flex items-center gap-3 px-5 w-full justify-between">
+        <div className="flex items-center gap-3">
+          <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground" />
+          <Separator orientation="vertical" className="h-4 bg-border" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem className="hidden md:block">
+                <BreadcrumbLink href="#" className="text-muted-foreground hover:text-foreground text-sm">
+                  Order Tracking
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block text-muted-foreground" />
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-foreground text-sm font-medium">
+                  All Orders
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <Clock className="w-3.5 h-3.5" />
+            <span>Updated {getTimeSinceLastFetch()}</span>
           </div>
         </div>
-      </header>
+      </div>
+    </header>
 
-      <div className="flex-1 overflow-hidden">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <Loader2 className="w-10 h-10 animate-spin text-zinc-400 mb-3" />
-            <p className="text-zinc-500 text-sm">Loading orders</p>
-          </div>
-        ) : error ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <AlertCircle className="w-10 h-10 text-red-500 mb-3" />
-            <div className="text-red-600 text-sm font-medium mb-1">Error loading orders</div>
-            <p className="text-zinc-500 text-xs mb-4">{error}</p>
-            <Button onClick={fetchOrders} variant="outline" className="border-zinc-300 hover:bg-zinc-100">
-              Retry
-            </Button>
-          </div>
-        ) : orders.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <ShoppingBag className="w-16 h-16 text-zinc-300 mb-4" />
-            <p className="text-zinc-600 text-sm font-medium">No orders</p>
-            <p className="text-zinc-400 text-xs mt-1">Waiting for new orders...</p>
-          </div>
-        ) : (
-          <ScrollArea className="h-full">
-            <div className="p-6">
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-white border border-zinc-200 p-5">
-                  <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">Total</div>
-                  <div className="text-3xl font-bold text-zinc-900">{orders.length}</div>
-                </div>
-                <div className="bg-white border border-zinc-200 p-5">
-                  <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">Pending</div>
-                  <div className="text-3xl font-bold text-amber-600">{pendingOrders.length}</div>
-                </div>
-                <div className="bg-white border border-zinc-200 p-5">
-                  <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">Delivered</div>
-                  <div className="text-3xl font-bold text-emerald-600">{deliveredOrders.length}</div>
-                </div>
+    <div className="flex-1 overflow-hidden">
+      {loading ? (
+        <div className="flex flex-col items-center justify-center h-full">
+          <Loader2 className="w-10 h-10 animate-spin text-primary mb-3" />
+          <p className="text-muted-foreground text-sm">Loading orders</p>
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center h-full">
+          <AlertCircle className="w-10 h-10 text-destructive mb-3" />
+          <div className="text-destructive text-sm font-medium mb-1">Error loading orders</div>
+          <p className="text-muted-foreground text-xs mb-4">{error}</p>
+          <Button onClick={fetchOrders} variant="outline" className="bg-card border-border hover:bg-accent text-foreground">
+            Retry
+          </Button>
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-full">
+          <ShoppingBag className="w-16 h-16 text-muted-foreground/50 mb-4" />
+          <p className="text-foreground text-sm font-medium">No orders</p>
+          <p className="text-muted-foreground text-xs mt-1">Waiting for new orders...</p>
+        </div>
+      ) : (
+        <ScrollArea className="h-full">
+          <div className="p-6">
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="bg-card border border-border p-5 rounded-lg">
+                <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Total</div>
+                <div className="text-3xl font-bold text-foreground">{orders.length}</div>
               </div>
+              <div className="bg-card border border-border p-5 rounded-lg">
+                <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Pending</div>
+                <div className="text-3xl font-bold text-amber-500 dark:text-amber-400">{pendingOrders.length}</div>
+              </div>
+              <div className="bg-card border border-border p-5 rounded-lg">
+                <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Delivered</div>
+                <div className="text-3xl font-bold text-emerald-500 dark:text-emerald-400">{deliveredOrders.length}</div>
+              </div>
+            </div>
 
-              {/* Orders Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {orders.map((order) => {
-                  const isPending = !order.status || order.status === "PENDING";
-                  const isDelivered = order.status === "DELIVERED";
-                  const isVIP = order.Seating?.toUpperCase().includes("VIP");
-                  
-                  return (
-                  <Card
-                    key={order.id}
-                    className={`group bg-white border hover:border-zinc-400 transition-all duration-200 flex flex-col ${
-                      newOrderAnimation === order.id ? 'animate-[pulse_0.5s_ease-in-out_4] border-blue-500' : 'border-zinc-200'
-                    }`}
-                  >
-                    <CardHeader className="pb-4 space-y-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <div className="w-10 h-10 bg-zinc-100 flex items-center justify-center shrink-0">
-                            <User className="w-5 h-5 text-zinc-600" />
+            {/* Orders Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {orders.map((order) => {
+                const isDelivered = order.status === "DELIVERED";
+                const isVIP = order.Seating?.toUpperCase().includes("VIP");
+                
+                return (
+                <Card
+                  key={order.id}
+                  className={`group bg-card border hover:border-primary/50 transition-all duration-200 flex flex-col ${
+                    newOrderAnimation === order.id ? 'animate-[pulse_0.5s_ease-in-out_4] border-blue-500' : 'border-border'
+                  }`}
+                >
+                  <CardHeader className="pb-4 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="w-10 h-10 bg-muted flex items-center justify-center shrink-0 rounded">
+                          <User className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold text-sm text-foreground truncate">
+                              {order.customerName || "Guest"}
+                            </h3>
+                            {isVIP && (
+                              <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 text-xs px-1.5 py-0 border-amber-300 dark:border-amber-800">
+                                VIP
+                              </Badge>
+                            )}
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-semibold text-sm text-zinc-900 truncate">
-                                {order.customerName || "Guest"}
-                              </h3>
-                              {isVIP && (
-                                <Badge className="bg-amber-100 text-amber-700 text-xs px-1.5 py-0 border-amber-200">
-                                  VIP
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-xs text-zinc-500">
-                              {formatDate(order.createdAt)}
+                          <p className="text-xs text-muted-foreground">
+                            {formatDate(order.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => handleDeleteClick(order)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="outline" className="text-xs border-border bg-muted text-foreground">
+                        {getTotalItems(order.items)} items
+                      </Badge>
+                      <Badge 
+                        variant="outline"
+                        className={`text-md uppercase font-bold border-border px-3 py-1 ${
+                          order.paymentType === "CARD" 
+                            ? 'bg-muted text-foreground' 
+                            : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800'
+                        }`}
+                      >
+                        {order.paymentType === "CARD" ? <CreditCard className="w-4 h-4 mr-1.5" /> : <Banknote className="w-4 h-4 mr-1.5" />}
+                        {order.paymentType === "CARD" ? "Card" : "Cash"}
+                      </Badge>
+                      {order.Seating && (
+                        <Badge variant="outline" className="text-xs border-border bg-muted text-muted-foreground">
+                          <MapPin className="w-3 h-3 mr-1" />
+                          {order.Seating}
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className="pt-2">
+                      <Badge 
+                        variant="outline" 
+                        className={`text-xs font-medium ${
+                          isDelivered 
+                            ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800' 
+                            : 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-800'
+                        }`}
+                      >
+                        {isDelivered ? 'DELIVERED' : 'PENDING'}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="flex-1 flex flex-col">
+                    <div className="space-y-2 flex-1 mb-4">
+                      {order.items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex items-start justify-between gap-2 p-2.5 bg-muted border border-border rounded"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-foreground truncate">
+                              {item.product.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              ${item.product.price.toFixed(2)} × {item.quantity}
+                            </p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="text-sm font-semibold text-foreground">
+                              ${(item.product.price * item.quantity).toFixed(2)}
                             </p>
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-zinc-400 hover:text-red-600 hover:bg-red-50 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => handleDeleteClick(order)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      ))}
+                    </div>
 
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <Badge variant="outline" className="text-xs border-zinc-200 bg-zinc-50 text-zinc-700">
-                          {getTotalItems(order.items)} items
-                        </Badge>
-                        <Badge 
-                          variant="outline"
-                          className={`text-xs border-zinc-200 ${
-                            order.paymentType === "CARD" 
-                              ? 'bg-zinc-100 text-zinc-700' 
-                              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          }`}
-                        >
-                          {order.paymentType === "CARD" ? <CreditCard className="w-3 h-3 mr-1" /> : <Banknote className="w-3 h-3 mr-1" />}
-                          {order.paymentType === "CARD" ? "Card" : "Cash"}
-                        </Badge>
-                        {order.Seating && (
-                          <Badge variant="outline" className="text-xs border-zinc-200 bg-zinc-50 text-zinc-600">
-                            <MapPin className="w-3 h-3 mr-1" />
-                            {order.Seating}
-                          </Badge>
+                    <div className="pt-3 border-t border-border space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground uppercase tracking-wider">Total</span>
+                        <span className="text-xl font-bold text-foreground">
+                          ${order.subtotal.toFixed(2)}
+                        </span>
+                      </div>
+                      
+                      <Button
+                        onClick={() => handleStatusToggle(order)}
+                        disabled={updatingStatus === order.id}
+                        className={`w-full font-medium transition-all ${
+                          isDelivered
+                            ? 'bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white'
+                            : 'bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700 text-white'
+                        }`}
+                      >
+                        {updatingStatus === order.id ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Updating
+                          </>
+                        ) : isDelivered ? (
+                          <>
+                            <CheckCircle2 className="w-4 h-4 mr-2" />
+                            Delivered
+                          </>
+                        ) : (
+                          'Mark Delivered'
                         )}
-                      </div>
-
-                      {/* Status Badge */}
-                      <div className="pt-2">
-                        <Badge 
-                          variant="outline" 
-                          className={`text-xs font-medium ${
-                            isDelivered 
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                              : 'bg-amber-50 text-amber-700 border-amber-200'
-                          }`}
-                        >
-                          {isDelivered ? 'DELIVERED' : 'PENDING'}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-
-                    <CardContent className="flex-1 flex flex-col">
-                      <div className="space-y-2 flex-1 mb-4">
-                        {order.items.map((item) => (
-                          <div
-                            key={item.id}
-                            className="flex items-start justify-between gap-2 p-2.5 bg-zinc-50 border border-zinc-200"
-                          >
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm text-zinc-900 truncate">
-                                {item.product.name}
-                              </p>
-                              <p className="text-xs text-zinc-500 mt-0.5">
-                                ${item.product.price.toFixed(2)} × {item.quantity}
-                              </p>
-                            </div>
-                            <div className="text-right shrink-0">
-                              <p className="text-sm font-semibold text-zinc-900">
-                                ${(item.product.price * item.quantity).toFixed(2)}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="pt-3 border-t border-zinc-200 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-zinc-500 uppercase tracking-wider">Total</span>
-                          <span className="text-xl font-bold text-zinc-900">
-                            ${order.subtotal.toFixed(2)}
-                          </span>
-                        </div>
-                        
-                        <Button
-                          onClick={() => handleStatusToggle(order)}
-                          disabled={updatingStatus === order.id}
-                          className={`w-full font-medium transition-all ${
-                            isDelivered
-                              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                              : 'bg-amber-600 hover:bg-amber-700 text-white'
-                          }`}
-                        >
-                          {updatingStatus === order.id ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Updating
-                            </>
-                          ) : isDelivered ? (
-                            <>
-                              <CheckCircle2 className="w-4 h-4 mr-2" />
-                              Delivered
-                            </>
-                          ) : (
-                            'Mark Delivered'
-                          )}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )})}
-              </div>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )})}
             </div>
-          </ScrollArea>
-        )}
-      </div>
-
-      {/* Delete Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="bg-white border-zinc-200">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-zinc-900">Delete Order</AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-600">
-              Are you sure you want to delete the order for{" "}
-              <span className="font-semibold text-zinc-900">{orderToDelete?.customerName}</span>?
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting} className="bg-white border-zinc-300 hover:bg-zinc-100 text-zinc-900">
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              disabled={deleting}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              {deleting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Deleting
-                </>
-              ) : (
-                "Delete"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          </div>
+        </ScrollArea>
+      )}
     </div>
-  );
+
+    {/* Delete Dialog */}
+    <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialogContent className="bg-card border-border">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-foreground">Delete Order</AlertDialogTitle>
+          <AlertDialogDescription className="text-muted-foreground">
+            Are you sure you want to delete the order for{" "}
+            <span className="font-semibold text-foreground">{orderToDelete?.customerName}</span>?
+            This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={deleting} className="bg-muted border-border hover:bg-accent text-foreground">
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDeleteConfirm}
+            disabled={deleting}
+            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+          >
+            {deleting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Deleting
+              </>
+            ) : (
+              "Delete"
+            )}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </div>
+);
 }

@@ -25,14 +25,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { toast } from "sonner";
 
 interface MenuItem {
@@ -143,25 +135,25 @@ export default function MenuPrices() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-screen bg-zinc-950">
       {/* Header */}
-      <header className="flex h-14 shrink-0 items-center gap-3 bg-card border-b border-border">
+      <header className="flex h-14 shrink-0 items-center gap-3 bg-zinc-900 border-b border-zinc-800">
         <div className="flex items-center gap-3 px-3 sm:px-5 w-full">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="h-4" />
+          <SidebarTrigger className="-ml-1 text-zinc-400 hover:text-zinc-100" />
+          <Separator orientation="vertical" className="h-4 bg-zinc-700" />
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink
                   href="#"
-                  className="text-muted-foreground hover:text-foreground text-sm"
+                  className="text-zinc-400 hover:text-zinc-100 text-sm"
                 >
                   Menu Management
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbSeparator className="hidden md:block text-zinc-600" />
               <BreadcrumbItem>
-                <BreadcrumbPage className="text-foreground text-sm font-medium">
+                <BreadcrumbPage className="text-zinc-100 text-sm font-medium">
                   Menu Prices
                 </BreadcrumbPage>
               </BreadcrumbItem>
@@ -175,8 +167,8 @@ export default function MenuPrices() {
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Page Header */}
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Menu Prices</h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <h1 className="text-2xl font-bold text-zinc-100">Menu Prices</h1>
+            <p className="text-sm text-zinc-400 mt-1">
               Update prices and availability for your menu items
             </p>
           </div>
@@ -184,20 +176,20 @@ export default function MenuPrices() {
           {/* Menu Items Table */}
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-              <p className="text-muted-foreground text-sm">
+              <Loader2 className="w-12 h-12 animate-spin text-lime-500 mb-4" />
+              <p className="text-zinc-400 text-sm">
                 Loading menu items...
               </p>
             </div>
           ) : menuItems.length === 0 ? (
-            <Card>
+            <Card className="bg-zinc-900 border-zinc-800">
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <div className="text-center">
-                  <DollarSign className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                  <DollarSign className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-zinc-100 mb-2">
                     No menu items found
                   </h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-zinc-400">
                     Menu items will appear here once they are added to the
                     system
                   </p>
@@ -205,61 +197,61 @@ export default function MenuPrices() {
               </CardContent>
             </Card>
           ) : (
-            <Card>
+            <Card className="bg-zinc-900 border-zinc-800">
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[35%]">Item Name</TableHead>
-                        <TableHead className="w-[35%] hidden sm:table-cell">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-zinc-800">
+                        <th className="w-[35%] text-left px-4 py-3 text-sm font-medium text-zinc-300">Item Name</th>
+                        <th className="w-[35%] text-left px-4 py-3 text-sm font-medium text-zinc-300 hidden sm:table-cell">
                           Description
-                        </TableHead>
-                        <TableHead className="w-[10%] text-center">
+                        </th>
+                        <th className="w-[10%] text-center px-4 py-3 text-sm font-medium text-zinc-300">
                           Available
-                        </TableHead>
-                        <TableHead className="w-[15%] text-right">
+                        </th>
+                        <th className="w-[15%] text-right px-4 py-3 text-sm font-medium text-zinc-300">
                           Price
-                        </TableHead>
-                        <TableHead className="w-[5%] text-right">
+                        </th>
+                        <th className="w-[5%] text-right px-4 py-3 text-sm font-medium text-zinc-300">
                           Action
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
                       {menuItems.map((item) => (
-                        <TableRow key={item.id}>
-                          <TableCell className="font-medium">
+                        <tr key={item.id} className="border-b border-zinc-800 hover:bg-zinc-800/50">
+                          <td className="px-4 py-3 font-medium text-zinc-100">
                             {item.name}
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell text-muted-foreground">
+                          </td>
+                          <td className="px-4 py-3 text-zinc-400 hidden sm:table-cell">
                             {item.description || "—"}
-                          </TableCell>
-                          <TableCell className="text-center">
+                          </td>
+                          <td className="px-4 py-3 text-center">
                             <div className="flex justify-center">
                               <Checkbox
                                 checked={item.available}
-                                className="data-[state=checked]:bg-lime-600 data-[state=checked]:border-lime-600"
+                                className="data-[state=checked]:bg-lime-600 data-[state=checked]:border-lime-600 border-zinc-600"
                               />
                             </div>
-                          </TableCell>
-                          <TableCell className="text-right font-semibold text-primary">
+                          </td>
+                          <td className="px-4 py-3 text-right font-semibold text-lime-400">
                             ${item.price.toFixed(2)}
-                          </TableCell>
-                          <TableCell className="text-right">
+                          </td>
+                          <td className="px-4 py-3 text-right">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                              className="h-8 w-8 text-zinc-400 hover:bg-lime-950/50 hover:text-lime-400"
                               onClick={() => handleOpenDialog(item)}
                             >
                               <Pencil className="w-4 h-4" />
                             </Button>
-                          </TableCell>
-                        </TableRow>
+                          </td>
+                        </tr>
                       ))}
-                    </TableBody>
-                  </Table>
+                    </tbody>
+                  </table>
                 </div>
               </CardContent>
             </Card>
@@ -269,43 +261,43 @@ export default function MenuPrices() {
 
       {/* Edit Price Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] bg-zinc-900 border-zinc-800">
           <DialogHeader>
-            <DialogTitle>Edit Menu Item</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-zinc-100">Edit Menu Item</DialogTitle>
+            <DialogDescription className="text-zinc-400">
               Update the price and availability for {selectedItem?.name}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="item-name">Item Name</Label>
+              <Label htmlFor="item-name" className="text-zinc-300">Item Name</Label>
               <Input
                 id="item-name"
                 value={selectedItem?.name || ""}
                 disabled
-                className="bg-muted"
+                className="bg-zinc-800 border-zinc-700 text-zinc-400"
               />
             </div>
 
             {selectedItem?.description && (
               <div className="space-y-2">
-                <Label htmlFor="item-description">Description</Label>
+                <Label htmlFor="item-description" className="text-zinc-300">Description</Label>
                 <Input
                   id="item-description"
                   value={selectedItem.description}
                   disabled
-                  className="bg-muted"
+                  className="bg-zinc-800 border-zinc-700 text-zinc-400"
                 />
               </div>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="price">
-                Price <span className="text-destructive">*</span>
+              <Label htmlFor="price" className="text-zinc-300">
+                Price <span className="text-red-400">*</span>
               </Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">
                   $
                 </span>
                 <Input
@@ -316,7 +308,7 @@ export default function MenuPrices() {
                   placeholder="0.00"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="pl-7"
+                  className="pl-7 bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-600"
                   autoFocus
                 />
               </div>
@@ -330,38 +322,38 @@ export default function MenuPrices() {
                   onCheckedChange={(checked) =>
                     setAvailable(checked as boolean)
                   }
-                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                  className="data-[state=checked]:bg-lime-600 data-[state=checked]:border-lime-600 border-zinc-600"
                 />
                 <Label
                   htmlFor="available"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-zinc-300"
                 >
                   Item is available for ordering
                 </Label>
               </div>
-              <p className="text-xs text-muted-foreground ml-6">
+              <p className="text-xs text-zinc-500 ml-6">
                 Uncheck to temporarily remove this item from the menu
               </p>
             </div>
 
-            <div className="bg-muted/50 border border-border rounded-lg p-3 space-y-2">
+            <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-3 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-zinc-400">
                   Current Price:
                 </span>
-                <span className="text-lg font-bold text-foreground">
+                <span className="text-lg font-bold text-zinc-100">
                   ${selectedItem?.price.toFixed(2)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-zinc-400">
                   Current Status:
                 </span>
                 <span
                   className={`text-sm font-semibold ${
                     selectedItem?.available
-                      ? "text-green-600"
-                      : "text-orange-600"
+                      ? "text-green-500"
+                      : "text-orange-500"
                   }`}
                 >
                   {selectedItem?.available ? "Available" : "Unavailable"}
@@ -369,27 +361,27 @@ export default function MenuPrices() {
               </div>
               {(price && !isNaN(parseFloat(price))) ||
               available !== selectedItem?.available ? (
-                <div className="pt-2 border-t border-border space-y-2">
+                <div className="pt-2 border-t border-zinc-700 space-y-2">
                   {price &&
                     !isNaN(parseFloat(price)) &&
                     parseFloat(price) !== selectedItem?.price && (
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-zinc-400">
                           New Price:
                         </span>
-                        <span className="text-lg font-bold text-primary">
+                        <span className="text-lg font-bold text-lime-400">
                           ${parseFloat(price).toFixed(2)}
                         </span>
                       </div>
                     )}
                   {available !== selectedItem?.available && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm text-zinc-400">
                         New Status:
                       </span>
                       <span
                         className={`text-sm font-semibold ${
-                          available ? "text-green-600" : "text-orange-600"
+                          available ? "text-green-500" : "text-orange-500"
                         }`}
                       >
                         {available ? "Available" : "Unavailable"}
@@ -407,13 +399,14 @@ export default function MenuPrices() {
               variant="outline"
               onClick={handleCloseDialog}
               disabled={submitting}
+              className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 text-zinc-100"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={submitting}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="bg-lime-600 hover:bg-lime-700 text-white"
             >
               {submitting ? (
                 <>

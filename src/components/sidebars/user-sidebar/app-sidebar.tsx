@@ -20,6 +20,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import ThemeButton from "@/components/ThemeButton"
 
 // Sidebar static data
 const sidebarData = {
@@ -44,7 +45,7 @@ const sidebarData = {
       title: "Admin",
       url: "#",
       icon: Bot,
-      requiresAdmin: true, // Add this flag
+      requiresAdmin: true,
       items: [
         { title: "Menu", url: "/user-dashboard/menu" },
         { title: "Users Management", url: "/user-dashboard/users-management" },
@@ -87,7 +88,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, [session?.user?.role])
 
   return (
-    <Sidebar  collapsible="icon" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher team={sidebarData.teams} />
       </SidebarHeader>
@@ -96,6 +97,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={sidebarData.projects} />
       </SidebarContent>
       <SidebarFooter>
+        <ThemeButton />
         <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
