@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from "react";
+import { Plus, Pencil, Trash2, Loader2, Upload, X, Image } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -42,6 +42,7 @@ interface MenuItem {
   name: string;
   description?: string;
   price: number;
+  image?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -54,6 +55,9 @@ export default function MenuItemsPage() {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -69,7 +73,7 @@ export default function MenuItemsPage() {
   const fetchMenuItems = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/menu-items");
+      const response = await fetch("/api/menu-items/get-all-items");
       
       if (!response.ok) {
         throw new Error("Failed to fetch menu items");
@@ -87,6 +91,44 @@ export default function MenuItemsPage() {
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Invalid file type", {
+        description: "Please select an image file.",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File too large", {
+        description: "Please select an image smaller than 5MB.",
+      });
+      return;
+    }
+
+    setImageFile(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleOpenDialog = (item?: MenuItem) => {
     if (item) {
       setSelectedItem(item);
@@ -94,13 +136,16 @@ export default function MenuItemsPage() {
         name: item.name,
         description: item.description || "",
       });
+      setImagePreview(item.image || null);
     } else {
       setSelectedItem(null);
       setFormData({
         name: "",
         description: "",
       });
+      setImagePreview(null);
     }
+    setImageFile(null);
     setIsDialogOpen(true);
   };
 
@@ -111,6 +156,11 @@ export default function MenuItemsPage() {
       name: "",
       description: "",
     });
+    setImagePreview(null);
+    setImageFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleSubmit = async () => {
@@ -123,6 +173,21 @@ export default function MenuItemsPage() {
 
     try {
       setSubmitting(true);
+      
+      let imageBase64 = selectedItem?.image || null;
+      
+      // Convert new image to base64 if uploaded
+      if (imageFile) {
+        imageBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(imageFile);
+        });
+      } else if (imagePreview === null && selectedItem) {
+        // Image was removed
+        imageBase64 = null;
+      }
       
       const url = selectedItem 
         ? `/api/menu-items/${selectedItem.id}`
@@ -138,7 +203,8 @@ export default function MenuItemsPage() {
         body: JSON.stringify({
           name: formData.name.trim(),
           description: formData.description.trim() || null,
-          price: 0, // Always set to 0 as per requirement
+          price: 0,
+          image: imageBase64,
         }),
       });
 
@@ -154,7 +220,7 @@ export default function MenuItemsPage() {
         {
           description: selectedItem 
             ? "The menu item has been successfully updated."
-            : "The menu item has been successfully created. Price is set to $0.00 and can be updated later.",
+            : "The menu item has been successfully created.",
         }
       );
     } catch (error) {
@@ -278,9 +344,18 @@ export default function MenuItemsPage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {menuItems.map((item) => (
-                <Card key={item.id} className="hover:shadow-md transition-shadow">
+                <Card key={item.id} className="hover:shadow-md transition-shadow overflow-hidden">
+                  {item.image && (
+                    <div className="w-full h-64 bg-muted relative overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-64 aspect-square"
+                      />
+                    </div>
+                  )}
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
@@ -327,7 +402,7 @@ export default function MenuItemsPage() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {selectedItem ? "Edit Menu Item" : "Add New Menu Item"}
@@ -340,6 +415,58 @@ export default function MenuItemsPage() {
           </DialogHeader>
           
           <div className="space-y-4 py-4">
+            {/* Image Upload */}
+            <div className="space-y-2">
+              <Label>Image (Optional)</Label>
+              <div className="space-y-3">
+                {imagePreview ? (
+                  <div className="relative w-full h-48 bg-muted rounded-lg overflow-hidden border-2 border-border">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-8 w-8"
+                      onClick={handleRemoveImage}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div
+                    className="w-full h-48 bg-muted rounded-lg border-2 border-dashed border-border hover:border-primary/50 transition-colors cursor-pointer flex flex-col items-center justify-center"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Image className="w-12 h-12 text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground mb-1">Click to upload image</p>
+                    <p className="text-xs text-muted-foreground">PNG, JPG up to 5MB</p>
+                  </div>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+                {!imagePreview && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Choose Image
+                  </Button>
+                )}
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="name">
                 Name <span className="text-destructive">*</span>
@@ -407,7 +534,7 @@ export default function MenuItemsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete "{itemToDelete?.name}". This action cannot be undone.
+              This will permanently delete &qout;{itemToDelete?.name}&qout;. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -415,7 +542,7 @@ export default function MenuItemsPage() {
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={submitting}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              className="bg-destructive hover:bg-destructive/90 text-white"
             >
               {submitting ? (
                 <>

@@ -1,5 +1,3 @@
-// app/api/menu-items/[id]/route.ts
-
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -8,9 +6,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params; // Need to await params in Next.js 15
+    const { id } = await params;
     const body = await request.json();
-    const { name, description, available } = body;
+    const { name, description, available, image } = body;
 
     const menuItem = await prisma.menuItems.update({
       where: { id },
@@ -18,7 +16,8 @@ export async function PUT(
         name,
         description,
         available,
-        price: 0, // Keep at 0 when updating
+        image: image !== undefined ? image : undefined, // Update image if provided
+        price: 0,
       },
     });
 
@@ -37,7 +36,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params; // Need to await params in Next.js 15
+    const { id } = await params;
 
     await prisma.menuItems.delete({
       where: { id },

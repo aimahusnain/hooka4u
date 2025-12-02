@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VIPService4U - Your Hookah, Your Way",
+  title: "VIP Service 4U - Your Hookah, Your Way",
   description: "Your Hookah, Your Way",
 };
 

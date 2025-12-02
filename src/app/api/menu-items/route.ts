@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma"; // Adjust import path
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    // Fetch all items and filter in JavaScript
     const allItems = await prisma.menuItems.findMany({
       orderBy: { createdAt: 'desc' }
     });
     
-    // Filter for available items
     const menuItems = allItems.filter(item => item.available === true);
     
     return NextResponse.json(menuItems);
@@ -24,18 +22,20 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, description, price } = body;
+    const { name, description, price, image } = body;
 
     const menuItem = await prisma.menuItems.create({
       data: {
         name,
         description,
-        price: 0, // Always 0 as per requirement
+        image: image || null, // Store base64 image
+        price: 0,
       },
     });
 
     return NextResponse.json(menuItem, { status: 201 });
   } catch (error) {
+    console.error('Error creating menu item:', error);
     return NextResponse.json(
       { error: "Failed to create menu item" },
       { status: 500 }
