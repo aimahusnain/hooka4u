@@ -20,7 +20,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import ThemeButton from "@/components/ThemeButton"
 
 // Sidebar static data
 const sidebarData = {
@@ -97,7 +96,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={sidebarData.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <ThemeButton />
+        {/* <ThemeButton /> */}
         <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
