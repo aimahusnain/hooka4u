@@ -24,6 +24,7 @@ import { toast } from "sonner";
 interface Product {
   id: string;
   name: string;
+  image: string;
   price: number;
   description?: string;
 }
@@ -314,33 +315,53 @@ return (
                 return (
                   <Card
                     key={product.id}
-                    className={`cursor-pointer transition-all border ${
+                    className={`cursor-pointer transition-all border overflow-hidden ${
                       isSelected
                         ? "bg-lime-100 dark:bg-lime-950 shadow-md border-lime-300 dark:border-lime-800"
                         : "border-border/10 bg-card hover:border-primary/50 hover:shadow-sm"
                     }`}
                     onClick={() => handleProductClick(product)}
                   >
-                    <CardContent className="px-3 sm:px-4 space-y-2 sm:space-y-3">
-                      <div>
-                        <h3 className="font-semibold text-xs sm:text-sm text-foreground leading-snug">
-                          {product.name}
-                        </h3>
-                        {product.description && (
-                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                            {product.description}
-                          </p>
+                    <CardContent className="p-0">
+                      {/* Square Image Container */}
+                      <div className="relative w-full pt-[100%] bg-muted overflow-hidden">
+                        {product.image ? (
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                            <ShoppingCart className="w-8 h-8 sm:w-10 sm:h-10 text-muted-foreground/30" />
+                          </div>
+                        )}
+                        {isSelected && (
+                          <div className="absolute top-2 right-2">
+                            <Badge className="bg-primary hover:bg-primary text-primary-foreground px-2 py-1 text-xs font-medium shadow-md">
+                              {inCart.quantity}
+                            </Badge>
+                          </div>
                         )}
                       </div>
-                      <div className="flex items-center justify-between pt-1">
-                        <span className="font-semibold text-sm sm:text-base text-foreground">
-                          ${product.price.toFixed(2)}
-                        </span>
-                        {isSelected && (
-                          <Badge className="bg-primary hover:bg-primary text-primary-foreground px-2 py-0.5 text-xs font-medium">
-                            {inCart.quantity}
-                          </Badge>
-                        )}
+                      
+                      {/* Product Info */}
+                      <div className="px-3 sm:px-4 py-3 space-y-2">
+                        <div>
+                          <h3 className="font-semibold text-xs sm:text-sm text-foreground leading-snug line-clamp-1">
+                            {product.name}
+                          </h3>
+                          {product.description && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                              {product.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="pt-1">
+                          <span className="font-semibold text-sm sm:text-base text-foreground">
+                            ${product.price.toFixed(2)}
+                          </span>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
