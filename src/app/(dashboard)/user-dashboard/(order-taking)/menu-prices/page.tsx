@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { Pencil, Loader2, DollarSign } from "lucide-react";
 import {
@@ -57,11 +56,9 @@ export default function MenuPrices() {
     try {
       setLoading(true);
       const response = await fetch("/api/menu-prices");
-
       if (!response.ok) {
         throw new Error("Failed to fetch menu items");
       }
-
       const data = await response.json();
       setMenuItems(data);
     } catch (error) {
@@ -92,7 +89,6 @@ export default function MenuPrices() {
     if (!selectedItem) return;
 
     const priceValue = parseFloat(price);
-
     if (isNaN(priceValue) || priceValue < 0) {
       toast.error("Invalid price", {
         description: "Please enter a valid price greater than or equal to 0.",
@@ -102,7 +98,6 @@ export default function MenuPrices() {
 
     try {
       setSubmitting(true);
-
       const response = await fetch(`/api/menu-prices/${selectedItem.id}`, {
         method: "PUT",
         headers: {
@@ -120,7 +115,6 @@ export default function MenuPrices() {
 
       await fetchMenuItems();
       handleCloseDialog();
-
       toast.success("Menu item updated!", {
         description: `${selectedItem.name} has been updated successfully.`,
       });
@@ -135,25 +129,25 @@ export default function MenuPrices() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-zinc-950">
+    <div className="flex flex-col h-screen bg-white dark:bg-zinc-950">
       {/* Header */}
-      <header className="flex h-14 shrink-0 items-center gap-3 bg-zinc-900 border-b border-zinc-800">
+      <header className="flex h-14 shrink-0 items-center gap-3 bg-gray-50 dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800">
         <div className="flex items-center gap-3 px-3 sm:px-5 w-full">
-          <SidebarTrigger className="-ml-1 text-zinc-400 hover:text-zinc-100" />
-          <Separator orientation="vertical" className="h-4 bg-zinc-700" />
+          <SidebarTrigger className="-ml-1 text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100" />
+          <Separator orientation="vertical" className="h-4 bg-gray-300 dark:bg-zinc-700" />
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink
                   href="#"
-                  className="text-zinc-400 hover:text-zinc-100 text-sm"
+                  className="text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 text-sm"
                 >
                   Menu Management
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block text-zinc-600" />
+              <BreadcrumbSeparator className="hidden md:block text-gray-400 dark:text-zinc-600" />
               <BreadcrumbItem>
-                <BreadcrumbPage className="text-zinc-100 text-sm font-medium">
+                <BreadcrumbPage className="text-gray-900 dark:text-zinc-100 text-sm font-medium">
                   Menu Prices
                 </BreadcrumbPage>
               </BreadcrumbItem>
@@ -167,8 +161,8 @@ export default function MenuPrices() {
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Page Header */}
           <div>
-            <h1 className="text-2xl font-bold text-zinc-100">Menu Prices</h1>
-            <p className="text-sm text-zinc-400 mt-1">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">Menu Prices</h1>
+            <p className="text-sm text-gray-600 dark:text-zinc-400 mt-1">
               Update prices and availability for your menu items
             </p>
           </div>
@@ -177,19 +171,19 @@ export default function MenuPrices() {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12">
               <Loader2 className="w-12 h-12 animate-spin text-lime-500 mb-4" />
-              <p className="text-zinc-400 text-sm">
+              <p className="text-gray-600 dark:text-zinc-400 text-sm">
                 Loading menu items...
               </p>
             </div>
           ) : menuItems.length === 0 ? (
-            <Card className="bg-zinc-900 border-zinc-800">
+            <Card className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <div className="text-center">
-                  <DollarSign className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-zinc-100 mb-2">
+                  <DollarSign className="w-12 h-12 text-gray-400 dark:text-zinc-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-zinc-100 mb-2">
                     No menu items found
                   </h3>
-                  <p className="text-sm text-zinc-400">
+                  <p className="text-sm text-gray-600 dark:text-zinc-400">
                     Menu items will appear here once they are added to the
                     system
                   </p>
@@ -197,52 +191,52 @@ export default function MenuPrices() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="bg-zinc-900 border-zinc-800">
+            <Card className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-zinc-800">
-                        <th className="w-[35%] text-left px-4 py-3 text-sm font-medium text-zinc-300">Item Name</th>
-                        <th className="w-[35%] text-left px-4 py-3 text-sm font-medium text-zinc-300 hidden sm:table-cell">
+                      <tr className="border-b border-gray-200 dark:border-zinc-800">
+                        <th className="w-[35%] text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-zinc-300">Item Name</th>
+                        <th className="w-[35%] text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-zinc-300 hidden sm:table-cell">
                           Description
                         </th>
-                        <th className="w-[10%] text-center px-4 py-3 text-sm font-medium text-zinc-300">
+                        <th className="w-[10%] text-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-zinc-300">
                           Available
                         </th>
-                        <th className="w-[15%] text-right px-4 py-3 text-sm font-medium text-zinc-300">
+                        <th className="w-[15%] text-right px-4 py-3 text-sm font-medium text-gray-700 dark:text-zinc-300">
                           Price
                         </th>
-                        <th className="w-[5%] text-right px-4 py-3 text-sm font-medium text-zinc-300">
+                        <th className="w-[5%] text-right px-4 py-3 text-sm font-medium text-gray-700 dark:text-zinc-300">
                           Action
                         </th>
                       </tr>
                     </thead>
                     <tbody>
                       {menuItems.map((item) => (
-                        <tr key={item.id} className="border-b border-zinc-800 hover:bg-zinc-800/50">
-                          <td className="px-4 py-3 font-medium text-zinc-100">
+                        <tr key={item.id} className="border-b border-gray-200 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/50">
+                          <td className="px-4 py-3 font-medium text-gray-900 dark:text-zinc-100">
                             {item.name}
                           </td>
-                          <td className="px-4 py-3 text-zinc-400 hidden sm:table-cell">
+                          <td className="px-4 py-3 text-gray-600 dark:text-zinc-400 hidden sm:table-cell">
                             {item.description || "—"}
                           </td>
                           <td className="px-4 py-3 text-center">
                             <div className="flex justify-center">
                               <Checkbox
                                 checked={item.available}
-                                className="data-[state=checked]:bg-lime-600 data-[state=checked]:border-lime-600 border-zinc-600"
+                                className="data-[state=checked]:bg-lime-600 data-[state=checked]:border-lime-600 border-gray-400 dark:border-zinc-600"
                               />
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-right font-semibold text-lime-400">
+                          <td className="px-4 py-3 text-right font-semibold text-lime-600 dark:text-lime-400">
                             ${item.price.toFixed(2)}
                           </td>
                           <td className="px-4 py-3 text-right">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-zinc-400 hover:bg-lime-950/50 hover:text-lime-400"
+                              className="h-8 w-8 text-gray-600 dark:text-zinc-400 hover:bg-lime-100 dark:hover:bg-lime-950/50 hover:text-lime-600 dark:hover:text-lime-400"
                               onClick={() => handleOpenDialog(item)}
                             >
                               <Pencil className="w-4 h-4" />
@@ -261,43 +255,40 @@ export default function MenuPrices() {
 
       {/* Edit Price Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-zinc-900 border-zinc-800">
+        <DialogContent className="sm:max-w-[425px] bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
           <DialogHeader>
-            <DialogTitle className="text-zinc-100">Edit Menu Item</DialogTitle>
-            <DialogDescription className="text-zinc-400">
+            <DialogTitle className="text-gray-900 dark:text-zinc-100">Edit Menu Item</DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-zinc-400">
               Update the price and availability for {selectedItem?.name}
             </DialogDescription>
           </DialogHeader>
-
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="item-name" className="text-zinc-300">Item Name</Label>
+              <Label htmlFor="item-name" className="text-gray-700 dark:text-zinc-300">Item Name</Label>
               <Input
                 id="item-name"
                 value={selectedItem?.name || ""}
                 disabled
-                className="bg-zinc-800 border-zinc-700 text-zinc-400"
+                className="bg-gray-100 dark:bg-zinc-800 border-gray-300 dark:border-zinc-700 text-gray-600 dark:text-zinc-400"
               />
             </div>
-
             {selectedItem?.description && (
               <div className="space-y-2">
-                <Label htmlFor="item-description" className="text-zinc-300">Description</Label>
+                <Label htmlFor="item-description" className="text-gray-700 dark:text-zinc-300">Description</Label>
                 <Input
                   id="item-description"
                   value={selectedItem.description}
                   disabled
-                  className="bg-zinc-800 border-zinc-700 text-zinc-400"
+                  className="bg-gray-100 dark:bg-zinc-800 border-gray-300 dark:border-zinc-700 text-gray-600 dark:text-zinc-400"
                 />
               </div>
             )}
-
             <div className="space-y-2">
-              <Label htmlFor="price" className="text-zinc-300">
-                Price <span className="text-red-400">*</span>
+              <Label htmlFor="price" className="text-gray-700 dark:text-zinc-300">
+                Price <span className="text-red-500 dark:text-red-400">*</span>
               </Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-zinc-500">
                   $
                 </span>
                 <Input
@@ -308,12 +299,11 @@ export default function MenuPrices() {
                   placeholder="0.00"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="pl-7 bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-600"
+                  className="pl-7 bg-white dark:bg-zinc-800 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-zinc-100 placeholder:text-gray-400 dark:placeholder:text-zinc-600"
                   autoFocus
                 />
               </div>
             </div>
-
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -322,38 +312,37 @@ export default function MenuPrices() {
                   onCheckedChange={(checked) =>
                     setAvailable(checked as boolean)
                   }
-                  className="data-[state=checked]:bg-lime-600 data-[state=checked]:border-lime-600 border-zinc-600"
+                  className="data-[state=checked]:bg-lime-600 data-[state=checked]:border-lime-600 border-gray-400 dark:border-zinc-600"
                 />
                 <Label
                   htmlFor="available"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-zinc-300"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-gray-700 dark:text-zinc-300"
                 >
                   Item is available for ordering
                 </Label>
               </div>
-              <p className="text-xs text-zinc-500 ml-6">
+              <p className="text-xs text-gray-500 dark:text-zinc-500 ml-6">
                 Uncheck to temporarily remove this item from the menu
               </p>
             </div>
-
-            <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-3 space-y-2">
+            <div className="bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-lg p-3 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-zinc-400">
+                <span className="text-sm text-gray-600 dark:text-zinc-400">
                   Current Price:
                 </span>
-                <span className="text-lg font-bold text-zinc-100">
+                <span className="text-lg font-bold text-gray-900 dark:text-zinc-100">
                   ${selectedItem?.price.toFixed(2)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-zinc-400">
+                <span className="text-sm text-gray-600 dark:text-zinc-400">
                   Current Status:
                 </span>
                 <span
                   className={`text-sm font-semibold ${
                     selectedItem?.available
-                      ? "text-green-500"
-                      : "text-orange-500"
+                      ? "text-green-600 dark:text-green-500"
+                      : "text-orange-600 dark:text-orange-500"
                   }`}
                 >
                   {selectedItem?.available ? "Available" : "Unavailable"}
@@ -361,27 +350,27 @@ export default function MenuPrices() {
               </div>
               {(price && !isNaN(parseFloat(price))) ||
               available !== selectedItem?.available ? (
-                <div className="pt-2 border-t border-zinc-700 space-y-2">
+                <div className="pt-2 border-t border-gray-200 dark:border-zinc-700 space-y-2">
                   {price &&
                     !isNaN(parseFloat(price)) &&
                     parseFloat(price) !== selectedItem?.price && (
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-zinc-400">
+                        <span className="text-sm text-gray-600 dark:text-zinc-400">
                           New Price:
                         </span>
-                        <span className="text-lg font-bold text-lime-400">
+                        <span className="text-lg font-bold text-lime-600 dark:text-lime-400">
                           ${parseFloat(price).toFixed(2)}
                         </span>
                       </div>
                     )}
                   {available !== selectedItem?.available && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-zinc-400">
+                      <span className="text-sm text-gray-600 dark:text-zinc-400">
                         New Status:
                       </span>
                       <span
                         className={`text-sm font-semibold ${
-                          available ? "text-green-500" : "text-orange-500"
+                          available ? "text-green-600 dark:text-green-500" : "text-orange-600 dark:text-orange-500"
                         }`}
                       >
                         {available ? "Available" : "Unavailable"}
@@ -392,14 +381,13 @@ export default function MenuPrices() {
               ) : null}
             </div>
           </div>
-
           <DialogFooter>
             <Button
               type="button"
               variant="outline"
               onClick={handleCloseDialog}
               disabled={submitting}
-              className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 text-zinc-100"
+              className="bg-white dark:bg-zinc-800 border-gray-300 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-900 dark:text-zinc-100"
             >
               Cancel
             </Button>

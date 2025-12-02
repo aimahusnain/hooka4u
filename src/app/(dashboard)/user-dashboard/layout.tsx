@@ -22,7 +22,7 @@ export default async function RootLayout({
     <html lang="en">
       <body>
         <ThemeContextProvider>
-          <SidebarProvider defaultOpen={defaultOpen} className="bg-blue-400">
+          <SidebarProvider defaultOpen={defaultOpen} className="bg-lime-500/50">
             <AppSidebar />
             <SidebarInset>{children}</SidebarInset>
           </SidebarProvider>
