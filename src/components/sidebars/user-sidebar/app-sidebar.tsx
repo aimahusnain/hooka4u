@@ -4,7 +4,7 @@ import { BookA, Bot, DollarSign, Frame, GalleryVerticalEnd, ListOrdered, Menu, M
 import { useSession } from "next-auth/react"
 import * as React from "react"
 import { NavMain } from "@/components/sidebars/user-sidebar/nav-main"
-import { NavProjects } from "@/components/sidebars/user-sidebar/nav-projects"
+import { HomepageQR } from "@/components/sidebars/user-sidebar/nav-projects"
 import { NavUser } from "@/components/sidebars/user-sidebar/nav-user"
 import { TeamSwitcher } from "@/components/sidebars/user-sidebar/team-switcher"
 import { MobileBottomNav } from "@/components/sidebars/user-sidebar/mobile-bottom-nav"
@@ -48,7 +48,6 @@ const sidebarData = {
       requiresAdmin: true,
     },
   ],
-  projects: [{ name: "Place New Order (Guest)", url: "/place-new-order", icon: Frame }],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -96,7 +95,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={filteredNavMain} />
-        <NavProjects projects={sidebarData.projects} />
+        <HomepageQR/>
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />
