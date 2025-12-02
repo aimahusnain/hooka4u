@@ -13,9 +13,9 @@ export async function GET() {
         id: true,
         username: true,
         name: true,
+        password: true,
         role: true,
         createdAt: true,
-        // Don't return password
       },
       orderBy: {
         createdAt: "desc",

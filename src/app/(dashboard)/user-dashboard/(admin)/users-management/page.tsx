@@ -36,6 +36,7 @@ interface User {
   name?: string
   role: "USER" | "ADMIN"
   createdAt: string
+  password?: string // Added password field
 }
 
 // Helper function to get display role (hardcoded DEVELOPER for husnaindevkins)
@@ -66,18 +67,21 @@ export default function UserManagement() {
   const [showPassword, setShowPassword] = useState(false)
   const [isFormOpen, setIsFormOpen] = useState(false)
 
+  // Track which user's password is visible
+  const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set())
+
   // Washup state
   const [isWashupDialogOpen, setIsWashupDialogOpen] = useState(false)
   const [washupPassword, setWashupPassword] = useState("")
   const [showWashupPassword, setShowWashupPassword] = useState(false)
   const [isWashupRunning, setIsWashupRunning] = useState(false)
   const [washupProgress, setWashupProgress] = useState(0)
-const [washupSteps, setWashupSteps] = useState<WashupStep[]>([
-    { id: "menu-prices", description: "Setting all menu item prices to   0", status: "pending" },
+  const [washupSteps, setWashupSteps] = useState<WashupStep[]>([
+    { id: "menu-prices", description: "Setting all menu item prices to 0", status: "pending" },
     { id: "menu-availability", description: "Setting all menu items to unavailable", status: "pending" },
     { id: "order-items", description: "Deleting all order items", status: "pending" },
     { id: "orders", description: "Deleting all orders", status: "pending" },
-    { id: "users", description: "Deleting all non-admin users", status: "pending" },
+    { id: "users", description: "Deleting all users", status: "pending" },
   ])
 
   // Fetch users from database
@@ -102,6 +106,18 @@ const [washupSteps, setWashupSteps] = useState<WashupStep[]>([
     } finally {
       setLoading(false)
     }
+  }
+
+  const togglePasswordVisibility = (userId: string) => {
+    setVisiblePasswords((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(userId)) {
+        newSet.delete(userId)
+      } else {
+        newSet.add(userId)
+      }
+      return newSet
+    })
   }
 
   const handleAddUser = async () => {
@@ -211,6 +227,7 @@ const [washupSteps, setWashupSteps] = useState<WashupStep[]>([
       { id: "menu-availability", description: "Setting all menu items to unavailable", status: "pending" },
       { id: "order-items", description: "Deleting all order items", status: "pending" },
       { id: "orders", description: "Deleting all orders", status: "pending" },
+      { id: "users", description: "Deleting all users", status: "pending" },
     ])
   }
 
@@ -252,13 +269,11 @@ const [washupSteps, setWashupSteps] = useState<WashupStep[]>([
       // Step 1: Set all menu item prices to 0
       updateStepStatus("menu-prices", "in-progress")
       setWashupProgress(10)
-
       const priceResponse = await fetch("/api/washup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ step: "menu-prices" }),
       })
-
       if (!priceResponse.ok) throw new Error("Failed to reset menu prices")
       updateStepStatus("menu-prices", "completed")
       setWashupProgress(25)
@@ -266,13 +281,11 @@ const [washupSteps, setWashupSteps] = useState<WashupStep[]>([
       // Step 2: Set all menu items to unavailable
       updateStepStatus("menu-availability", "in-progress")
       setWashupProgress(35)
-
       const availabilityResponse = await fetch("/api/washup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ step: "menu-availability" }),
       })
-
       if (!availabilityResponse.ok) throw new Error("Failed to update menu availability")
       updateStepStatus("menu-availability", "completed")
       setWashupProgress(50)
@@ -280,13 +293,11 @@ const [washupSteps, setWashupSteps] = useState<WashupStep[]>([
       // Step 3: Delete all order items
       updateStepStatus("order-items", "in-progress")
       setWashupProgress(60)
-
       const orderItemsResponse = await fetch("/api/washup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ step: "order-items" }),
       })
-
       if (!orderItemsResponse.ok) throw new Error("Failed to delete order items")
       updateStepStatus("order-items", "completed")
       setWashupProgress(75)
@@ -294,20 +305,33 @@ const [washupSteps, setWashupSteps] = useState<WashupStep[]>([
       // Step 4: Delete all orders
       updateStepStatus("orders", "in-progress")
       setWashupProgress(85)
-
       const ordersResponse = await fetch("/api/washup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ step: "orders" }),
       })
-
       if (!ordersResponse.ok) throw new Error("Failed to delete orders")
       updateStepStatus("orders", "completed")
+      setWashupProgress(90)
+
+      // Step 5: Delete all users
+      updateStepStatus("users", "in-progress")
+      setWashupProgress(95)
+      const usersResponse = await fetch("/api/washup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ step: "users" }),
+      })
+      if (!usersResponse.ok) throw new Error("Failed to delete users")
+      updateStepStatus("users", "completed")
       setWashupProgress(100)
 
       toast.success("Washup completed successfully!", {
         description: "All data has been reset.",
       })
+
+      // Refresh users list after washup completes
+      await fetchUsers()
 
       // Close dialog after a short delay
       setTimeout(() => {
@@ -386,6 +410,7 @@ const [washupSteps, setWashupSteps] = useState<WashupStep[]>([
                   {users.map((user) => {
                     const displayRole = getDisplayRole(user)
                     const isDeveloper = displayRole === "DEVELOPER"
+                    const isPasswordVisible = visiblePasswords.has(user.id)
 
                     return (
                       <Card key={user.id} className="hover:shadow-md transition-shadow">
@@ -402,7 +427,30 @@ const [washupSteps, setWashupSteps] = useState<WashupStep[]>([
                                 </Badge>
                               </div>
                               {user.name && <p className="text-sm text-muted-foreground mb-1">{user.name}</p>}
-                              <p className="text-xs text-muted-foreground">
+
+                              {/* Password display */}
+                              {user.password && (
+                                <div className="flex items-center gap-2 mt-2">
+                                  <span className="text-xs text-muted-foreground">Password:</span>
+                                  <code className="text-xs bg-muted px-2 py-1 rounded font-mono">
+                                    {isPasswordVisible ? user.password : "••••••••"}
+                                  </code>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-6 w-6"
+                                    onClick={() => togglePasswordVisibility(user.id)}
+                                  >
+                                    {isPasswordVisible ? (
+                                      <EyeOff className="w-3 h-3 text-muted-foreground" />
+                                    ) : (
+                                      <Eye className="w-3 h-3 text-muted-foreground" />
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
+
+                              <p className="text-xs text-muted-foreground mt-1">
                                 Created: {new Date(user.createdAt).toLocaleDateString()}
                               </p>
                             </div>
