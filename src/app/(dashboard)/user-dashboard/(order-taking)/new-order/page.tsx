@@ -353,7 +353,7 @@ return (
 
       {/* Mobile Bottom Button - Fixed Position */}
       {totalItems > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 md:hidden bg-white dark:bg-zinc-900 border-t border-border p-4 shadow-lg">
+        <div className="fixed bottom-15 left-0 right-0 md:hidden bg-white dark:bg-zinc-900 border-t border-border p-4">
           <Button
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 text-base font-semibold rounded-lg"
             onClick={handleMobileOrderButton}

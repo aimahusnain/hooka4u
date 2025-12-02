@@ -358,7 +358,7 @@ export default function AllOrders() {
         ) : orders.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full">
             <ShoppingBag className="w-16 h-16 text-muted-foreground/50 mb-4" />
-            <p className="text-foreground text-sm font-medium">No orders</p>
+            <p className="text-white text-sm font-medium">No orders</p>
             <p className="text-muted-foreground text-xs mt-1">
               Waiting for new orders...
             </p>
