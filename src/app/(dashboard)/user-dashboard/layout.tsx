@@ -21,12 +21,12 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeContextProvider>
+        {/* <ThemeContextProvider> */}
           <SidebarProvider defaultOpen={defaultOpen} className="bg-lime-500/50">
             <AppSidebar />
             <SidebarInset>{children}</SidebarInset>
           </SidebarProvider>
-        </ThemeContextProvider>
+        {/* </ThemeContextProvider> */}
       </body>
     </html>
   );
