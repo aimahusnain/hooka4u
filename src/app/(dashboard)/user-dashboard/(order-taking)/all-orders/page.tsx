@@ -425,7 +425,7 @@ export default function AllOrders() {
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <h3 className="font-semibold text-sm text-white truncate">
+                                <h3 className="font-semibold text-md text-white truncate">
                                   {order.customerName || "Guest"}
                                 </h3>
                                 {isVIP && (

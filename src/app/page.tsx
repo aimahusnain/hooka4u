@@ -1,11 +1,66 @@
-"use client";
-
-
-export default function HomePage() {
-
+import HeroSection from "@/components/hero-section"
+import AboutSection from "@/components/about-section"
+import RestaurantSection from "@/components/restaurant-section"
+import Footer from "@/components/footer"
+import ShishaCard from "@/components/shisha-card"
+import Testimonials from "@/components/testimonials"
+import LargeTestimonial from "@/components/large-testimonial"
+import Gallery from "@/components/gallery"
+        
+export default function Home() {
+    const shishaFlavors = [
+    {
+      id: 1,
+      name: "Apple Mint",
+      description: "Crisp green apple with refreshing mint leaves",
+      image: "/green-apple-cut-in-half-on-black-shisha-bowl-with-.jpg",
+    },
+    {
+      id: 2,
+      name: "Orange Zest",
+      description: "Bright citrus burst with aromatic orange",
+      image: "/fresh-orange-slice-on-black-shisha-bowl-with-mint-.jpg",
+    },
+    {
+      id: 3,
+      name: "Kiwi Chill",
+      description: "Tropical kiwi with cooling menthol effect",
+      image: "/kiwi-fruit-slice-on-black-shisha-bowl-with-mint-le.jpg",
+    },
+    {
+      id: 4,
+      name: "Citrus Mix",
+      description: "Blend of orange and various citrus fruits",
+      image: "/mixed-citrus-fruits-oranges-and-other-citrus-on-bl.jpg",
+    },
+  ]
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-      Wait, let us work on it first! 
-    </div>
-  );
+    <main  className="min-h-screen bg-black ">
+      <HeroSection />
+        <LargeTestimonial />
+      <AboutSection />
+      
+      <RestaurantSection />
+        <Gallery />
+  <section className="py-16">
+        <div className="text-center mb-16">
+          <h3 className="text-lime-500 font-script text-xl mb-4">Our Flavors</h3>
+          <h2 className="text-white text-4xl font-bold">Premium Shisha Blends</h2>
+        </div>
+        <div className="px-4 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {shishaFlavors.map((flavor) => (
+              <ShishaCard key={flavor.id} flavor={flavor} />
+            ))}
+          </div>
+        </div>
+      </section>
+        <Testimonials />
+       
+      <Footer />
+  
+                                         
+    </main>
+   
+  )
 }
