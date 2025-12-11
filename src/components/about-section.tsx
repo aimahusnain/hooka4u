@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 export default function AboutSection() {
   return (
     <section className="py-20 px-8 bg-black">
-      <div className="max-w-4xl mx-auto  grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      <div className="max-w-5xl mx-auto  grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         <motion.div
           className="relative"
           initial={{ opacity: 0, x: -50 }}
@@ -72,8 +72,17 @@ export default function AboutSection() {
               initial={{ x: "-100%" }}
               whileHover={{ x: "100%" }}
               transition={{ duration: 0.3 }}
+                         onClick={() => {
+    document.getElementById('menu-section')?.scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  }}
             />
-                 <span className="relative z-10  transition">Book now</span>
+                 <span              onClick={() => {
+    document.getElementById('menu-section')?.scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  }} className="relative z-10   transition">View Menu</span>
 
           </motion.button>
         </motion.div>

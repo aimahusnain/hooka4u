@@ -1,3 +1,4 @@
+'use client'
 export default function HeroSection() {
 
   return (
@@ -27,8 +28,14 @@ export default function HeroSection() {
               fusion of cultures!
             </p>
             <div className="flex flex-col sm:flex-row gap-8 items-start mb-8">
-              <button className="border-2 border-[#7CCF00] text-[#7CCF00] px-12 py-3 rounded hover:bg-[#7CCF00] hover:text-black transition font-semibold font-work-sans">
-                Explore now
+              <button             
+              onClick={() => {
+    document.getElementById('menu-section')?.scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  }}
+   className="border-2 border-[#7CCF00] text-[#7CCF00] px-12 py-3 rounded hover:bg-[#7CCF00] hover:text-black transition font-semibold font-work-sans">
+                Explore Menu
               </button>
             </div>
             <div className="flex gap-16 pt-8">

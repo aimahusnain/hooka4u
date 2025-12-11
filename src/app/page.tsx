@@ -6,6 +6,9 @@ import ShishaCard from "@/components/shisha-card"
 import Testimonials from "@/components/testimonials"
 import LargeTestimonial from "@/components/large-testimonial"
 import Gallery from "@/components/gallery"
+import Menu from "@/components/menu"
+import { SidebarProvider } from "@/components/ui/sidebar"
+import Image from "next/image"
         
 export default function Home() {
     const shishaFlavors = [
@@ -37,15 +40,31 @@ export default function Home() {
   return (
     <main  className="min-h-screen bg-black ">
       <HeroSection />
-        <LargeTestimonial />
-      <AboutSection />
-      
-      <RestaurantSection />
+          <LargeTestimonial />
+   <div className="flex justify-between">
+      <Image src="/coal1.png" width={400} height={400} alt="Testimonial Background"  className="w-60  hidden md:block h-auto object-cover" />
+
+         <AboutSection />
+<div></div>
+   </div>
+
+      <div className="flex  justify-between">
+<div></div>
+        <RestaurantSection />
+        <Image src="/coal.png" width={400} height={400}  alt="Testimonial Background"  className="w-60  hidden md:block h-auto object-cover" />
+   </div>
+
+
+
         <Gallery />
+
+
+        <Image src="/leaf.png" width={400} height={400}  alt="Testimonial Background"  className="w-60  right-0 absolute  hidden md:block h-auto object-cover" />
   <section className="py-16">
         <div className="text-center mb-16">
           <h3 className="text-lime-500 font-script text-xl mb-4">Our Flavors</h3>
           <h2 className="text-white text-4xl font-bold">Premium Shisha Blends</h2>
+
         </div>
         <div className="px-4 max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -55,7 +74,17 @@ export default function Home() {
           </div>
         </div>
       </section>
-        <Testimonials />
+<SidebarProvider>
+        <Menu />
+
+</SidebarProvider>
+    
+          <div className="flex py-10 gap-7  justify-between">
+        <Image src="/leaf.png" width={400} height={400}  alt="Testimonial Background"  className="w-30  hidden md:block h-auto object-cover" />
+             <Testimonials />
+
+        <Image src="/leaf.png" width={400} height={400}  alt="Testimonial Background"  className="w-30 rotate-180  hidden md:block h-auto object-cover" />
+   </div>
        
       <Footer />
   
