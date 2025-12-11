@@ -19,7 +19,7 @@ export default function Footer() {
   return (
     <footer className="bg-black border-t border-gray-800 py-16 px-8 relative overflow-hidden">
       <div className="max-w-6xl mx-auto">
-        <motion.div
+        {/* <motion.div
           className="text-center mb-16 py-12 border-b border-gray-800"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -51,7 +51,7 @@ export default function Footer() {
             <span className="relative z-10  transition">            <span className="relative z-10  transition">Book now</span>
 </span>
           </motion.button>
-        </motion.div>
+        </motion.div> */}
 
         <motion.div
           className="grid grid-cols-3 gap-12 mb-12"

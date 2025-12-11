@@ -20,7 +20,13 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { EmptyHookahState } from "@/components/empty-hookah-state";
 import { toast } from "sonner";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 interface Product {
   id: string;
   name: string;
@@ -51,6 +57,8 @@ export default function NewOrder() {
   // <CHANGE> Added state for mobile sheet drawer
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
   const [mobileSheetView, setMobileSheetView] = useState<"cart" | "form">("cart");
+const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+const [lastOrderId, setLastOrderId] = useState<string>("");
 
   // Fetch products from database
   useEffect(() => {
@@ -150,97 +158,93 @@ export default function NewOrder() {
     setShowOrderForm(false);
   };
 const handleConfirmOrder = async () => {
-    if (!customerName.trim()) {
-      toast.info("Customer name is required", {
-        description: "Please enter a customer name before placing the order.",
-        action: {
-          label: "Close",
-          onClick: () => console.log("Toast Closed"),
-        },
-      });
-      return;
+  if (!customerName.trim()) {
+    toast.info("Customer name is required", {
+      description: "Please enter a customer name before placing the order.",
+      action: {
+        label: "Close",
+        onClick: () => console.log("Toast Closed"),
+      },
+    });
+    return;
+  }
+
+  if (!paymentType) {
+    toast.info("Payment type is required", {
+      description: "Please select a payment type before placing the order.",
+      action: {
+        label: "Close",
+        onClick: () => console.log("Toast Closed"),
+      },
+    });
+    return;
+  }
+
+  if (!seating.trim()) {
+    toast.info("Seating Location is required", {
+      description: "Please enter a seating location before placing the order.",
+      action: {
+        label: "Close",
+        onClick: () => console.log("Toast Closed"),
+      },
+    });
+    return;
+  }
+
+  try {
+    setSubmitting(true);
+    const orderData = {
+      customerName: customerName.trim(),
+      paymentType,
+      Seating: seating.trim() || null,
+      items: cartItems.map((item) => ({
+        productId: item.id,
+        quantity: item.quantity,
+      })),
+      subtotal,
+    };
+
+    const response = await fetch("/api/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to place order");
     }
 
-    if (!paymentType) {
-      toast.info("Payment type is required", {
-        description: "Please select a payment type before placing the order.",
-        action: {
-          label: "Close",
-          onClick: () => console.log("Toast Closed"),
-        },
-      });
-      return;
-    }
+    const order = await response.json();
 
-    if (!seating.trim()) {
-      toast.info("Seating Location is required", {
-        description: "Please enter a seating location before placing the order.",
-        action: {
-          label: "Close",
-          onClick: () => console.log("Toast Closed"),
-        },
-      });
-      return;
-    }
+    // Store order ID and show success dialog
+    setLastOrderId(order.id);
+    setShowSuccessDialog(true);
 
-    try {
-      setSubmitting(true);
-      const orderData = {
-        customerName: customerName.trim(),
-        paymentType,
-        Seating: seating.trim() || null,
-        items: cartItems.map((item) => ({
-          productId: item.id,
-          quantity: item.quantity,
-        })),
-        subtotal,
-      };
+    // Reset form state
+    setCart({});
+    setCustomerName("");
+    setPaymentType("");
+    setSeating("");
+    setShowOrderForm(false);
+    setIsCartOpen(false);
+    setIsMobileSheetOpen(false);
+    setMobileSheetView("cart");
 
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(orderData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to place order");
-      }
-
-      const order = await response.json();
-
-      setCart({});
-      setCustomerName("");
-      setPaymentType("CASH");
-      setSeating("");
-      setShowOrderForm(false);
-      setIsCartOpen(false);
-      // <CHANGE> Close mobile sheet after successful order
-      setIsMobileSheetOpen(false);
-      setMobileSheetView("cart");
-
-      toast.success("Order has been successfully placed!", {
-        // @ts-ignore
-        description: "Order ID: " + order.id,
-        action: {
-          label: "Close",
-          onClick: () => console.log("Toast Closed"),
-        },
-      });
-    } catch (err) {
-      console.error("Error placing order:", err);
-      toast.error("We are sorry to say, but your order cannot be placed", {
-        description: "Please try again later!",
-        action: {
-          label: "Close",
-          onClick: () => console.log("Toast Closed"),
-        },
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  } catch (err) {
+    console.error("Error placing order:", err);
+    toast.error("We are sorry to say, but your order cannot be placed", {
+      description: "Please try again later!",
+      action: {
+        label: "Close",
+        onClick: () => console.log("Toast Closed"),
+      },
+    });
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   const cartItems = Object.values(cart);
   const subtotal = cartItems.reduce(
@@ -820,6 +824,44 @@ return (
         )}
       </div>
     </div>
+     <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+            <svg
+              className="h-6 w-6 text-green-600 dark:text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          <DialogTitle className="text-center text-xl">
+            Order Placed Successfully!
+          </DialogTitle>
+          <DialogDescription className="text-center space-y-2">
+            <p>Your order has been confirmed and sent to the kitchen.</p>
+            {/* <p className="text-sm font-mono bg-muted px-3 py-2 rounded-md inline-block">
+              Order ID: {lastOrderId}
+            </p> */}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-2 sm:flex-row sm:justify-center mt-4">
+          <Button
+            onClick={() => setShowSuccessDialog(false)}
+            className="w-full sm:w-auto"
+          >
+            Close
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   </div>
 );
 }

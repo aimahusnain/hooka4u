@@ -6,7 +6,7 @@ export default function RestaurantSection() {
   
   return (
     <section className="py-20 px-8 bg-black">
-      <div className="max-w-4xl mx-auto  grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+      <div className="max-w-5xl mx-auto  grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
         <motion.div
           className="space-y-6"
           initial={{ opacity: 0, x: -50 }}
@@ -38,6 +38,11 @@ export default function RestaurantSection() {
             className="border-2 border-[#7CCF00] text-[#7CCF00] px-8 py-3 relative overflow-hidden group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+             onClick={() => {
+    document.getElementById('menu-section')?.scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  }}
           >
             <motion.div
               className="absolute inset-0 bg-[#7CCF00] -z-10"
@@ -63,7 +68,7 @@ export default function RestaurantSection() {
             <motion.img
               src="/2.png"
               alt="People enjoying shisha"
-              className=" md:max-w-md rounded"
+              className=" md:max-w-sm lg:max-w-md rounded"
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.3 }}
             />
