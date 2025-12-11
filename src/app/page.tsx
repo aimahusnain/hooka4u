@@ -59,7 +59,7 @@ export default function Home() {
         <Gallery />
 
 
-        <Image src="/leaf.png" width={400} height={400}  alt="Testimonial Background"  className="w-60  right-0 absolute  hidden md:block h-auto object-cover" />
+        <Image src="/leaf.png" width={400} height={400}  alt="Testimonial Background"  className="w-60 rotate-189  right-0 absolute  hidden md:block h-auto object-cover" />
   <section className="py-16">
         <div className="text-center mb-16">
           <h3 className="text-lime-500 font-script text-xl mb-4">Our Flavors</h3>
