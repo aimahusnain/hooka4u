@@ -10,15 +10,17 @@ import Link from "next/link"
 export function HomepageQR() {
   const getHomepageUrl = () => {
     if (typeof window !== 'undefined') {
-      return window.location.origin
+      return `${window.location.origin}/place-new-order`
     }
     return ''
   }
 
   const getQRCodeUrl = () => {
-    const homepageUrl = getHomepageUrl()
-    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(homepageUrl)}&bgcolor=ffffff&color=000000&qzone=1&format=svg`
+    const finalUrl = getHomepageUrl()
+    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(finalUrl)}&bgcolor=ffffff&color=000000&qzone=1&format=svg`
   }
+
+  const finalUrl = getHomepageUrl()
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden mt-auto">
@@ -26,6 +28,7 @@ export function HomepageQR() {
         <QrCode className="h-3.5 w-3.5" />
         QR Code for Ordering Online
       </SidebarGroupLabel>
+
       <div className="flex flex-col items-center gap-3 px-2 py-3">
         <div className="rounded-lg border-2 border-border bg-white p-3 shadow-sm">
           <img
@@ -35,9 +38,13 @@ export function HomepageQR() {
             className="h-40 w-40"
           />
         </div>
-        <Link href={getHomepageUrl()} className="w-full hover:underline rounded-md bg-muted px-2 py-1.5 text-center">
-          <code className="text-[10px] text-muted-foreground break-all">
-            {getHomepageUrl()}
+
+        <Link
+          href={finalUrl}
+          className="w-full hover:underline rounded-md bg-muted px-2 py-1.5 text-center"
+        >
+          <code className="text-[10px] text-wrap text-muted-foreground break-all">
+            {finalUrl}
           </code>
         </Link>
       </div>

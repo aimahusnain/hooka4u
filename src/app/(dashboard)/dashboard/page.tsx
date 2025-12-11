@@ -15,33 +15,33 @@ export default function Page() {
   const navMain = [
     {
       title: "New Order",
-      url: "/user-dashboard/new-order",
+      url: "/dashboard/new-order",
       icon: BookA,
       description: "Create and submit a new order",
       isActive: true,
     },
     {
       title: "All Orders",
-      url: "/user-dashboard/all-orders",
+      url: "/dashboard/all-orders",
       icon: ListOrdered,
       description: "View and manage all orders",
     },
     {
       title: "Menu Prices",
-      url: "/user-dashboard/menu-prices",
+      url: "/dashboard/menu-prices",
       icon: DollarSign,
       description: "Check current menu pricing",
     },
     {
       title: "Menu",
-      url: "/user-dashboard/menu",
+      url: "/dashboard/menu",
       icon: Menu,
       description: "Manage menu items and categories",
       requiresAdmin: true,
     },
     {
       title: "Users Management",
-      url: "/user-dashboard/users-management",
+      url: "/dashboard/users-management",
       icon: Users,
       description: "Administer user accounts and permissions",
       requiresAdmin: true,

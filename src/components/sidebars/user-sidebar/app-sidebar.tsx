@@ -21,29 +21,29 @@ const sidebarData = {
   navMain: [
     {
       title: "New Order",
-      url: "/user-dashboard/new-order",
+      url: "/dashboard/new-order",
       icon: BookA,
       isActive: true,
     },
     {
       title: "All Orders",
-      url: "/user-dashboard/all-orders",
+      url: "/dashboard/all-orders",
       icon: ListOrdered,
     },
     {
       title: "Menu Prices",
-      url: "/user-dashboard/menu-prices",
+      url: "/dashboard/menu-prices",
       icon: DollarSign,
     },
     {
       title: "Menu",
-      url: "/user-dashboard/menu",
+      url: "/dashboard/menu",
       icon: Menu,
       requiresAdmin: true,
     },
     {
       title: "Users Management",
-      url: "/user-dashboard/users-management",
+      url: "/dashboard/users-management",
       icon: Users,
       requiresAdmin: true,
     },

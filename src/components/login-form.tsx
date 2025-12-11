@@ -23,7 +23,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
       username,
       password,
       redirect: true,
-      callbackUrl: "/user-dashboard",
+      callbackUrl: "/dashboard",
     });
 
     setLoading(false);

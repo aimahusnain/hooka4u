@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 const PUBLIC_ROUTES = ["/login", "/register"]; // allowed without login
-const DASHBOARD_ROUTES = ["/admin-dashboard", "/user-dashboard"];
+const DASHBOARD_ROUTES = ["/admin-dashboard", "/dashboard"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -16,7 +16,7 @@ export async function middleware(req: NextRequest) {
   if (token) {
     // Redirect logged-in user if they try to access login or home
     if (pathname === "/login") {
-      const redirectTo = "/user-dashboard";
+      const redirectTo = "/dashboard";
       return NextResponse.redirect(new URL(redirectTo, req.url));
     }
 
@@ -41,6 +41,6 @@ export const config = {
     "/login", 
     "/register", 
     "/admin-dashboard/:path*", 
-    "/user-dashboard/:path*"
+    "/dashboard/:path*"
   ],
 };
