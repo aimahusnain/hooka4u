@@ -1,121 +1,68 @@
-import HeroSection from "@/components/hero-section";
-import AboutSection from "@/components/about-section";
-import RestaurantSection from "@/components/restaurant-section";
-import Footer from "@/components/footer";
-import ShishaCard from "@/components/shisha-card";
-import Testimonials from "@/components/testimonials";
-import LargeTestimonial from "@/components/large-testimonial";
-import Gallery from "@/components/gallery";
+"use client";
+
 import Menu from "@/components/menu";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import Image from "next/image";
 
-export default function Home() {
-  const shishaFlavors = [
-    {
-      id: 1,
-      name: "Apple Mint",
-      description: "Crisp green apple with refreshing mint leaves",
-      image: "/green-apple-cut-in-half-on-black-shisha-bowl-with-.jpg",
-    },
-    {
-      id: 2,
-      name: "Orange Zest",
-      description: "Bright citrus burst with aromatic orange",
-      image: "/fresh-orange-slice-on-black-shisha-bowl-with-mint-.jpg",
-    },
-    {
-      id: 3,
-      name: "Kiwi Chill",
-      description: "Tropical kiwi with cooling menthol effect",
-      image: "/kiwi-fruit-slice-on-black-shisha-bowl-with-mint-le.jpg",
-    },
-    {
-      id: 4,
-      name: "Citrus Mix",
-      description: "Blend of orange and various citrus fruits",
-      image: "/mixed-citrus-fruits-oranges-and-other-citrus-on-bl.jpg",
-    },
-  ];
+export default function HeroSection() {
   return (
-    <main className="min-h-screen bg-black ">
-      <HeroSection />
-      {/* <LargeTestimonial /> */}
-      <div className="flex justify-between">
-        <Image
-          src="/coal1.png"
-          width={400}
-          height={400}
-          alt="Testimonial Background"
-          className="w-60  hidden md:block h-auto object-cover"
-        />
+    <>
+      <section className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center">
+        {/* Sophisticated gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black"></div>
 
-        <AboutSection />
-        <div></div>
-      </div>
-
-      <div className="flex  justify-between">
-        <div></div>
-        <RestaurantSection />
-        <Image
-          src="/coal.png"
-          width={400}
-          height={400}
-          alt="Testimonial Background"
-          className="w-60  hidden md:block h-auto object-cover"
-        />
-      </div>
-
-      <Gallery />
-
-      <Image
-        src="/leaf.png"
-        width={400}
-        height={400}
-        alt="Testimonial Background"
-        className="w-60 rotate-189  right-0 absolute  hidden md:block h-auto object-cover"
-      />
-      <section className="py-16">
-        <div className="text-center mb-16">
-          <h3 className="text-lime-500 font-script text-xl mb-4">
-            Our Flavors
-          </h3>
-          <h2 className="text-white text-4xl font-bold">
-            Premium Shisha Blends
-          </h2>
+        {/* Subtle accent lines */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-lime-500 to-transparent"></div>
+          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-lime-500 to-transparent"></div>
         </div>
-        <div className="px-4 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {shishaFlavors.map((flavor) => (
-              <ShishaCard key={flavor.id} flavor={flavor} />
-            ))}
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          {/* Main Heading */}
+          <h1 className="text-7xl md:text-8xl lg:text-9xl font-bold mb-20 tracking-tight">
+            <span
+              className="block text-white mb-4"
+              style={{ fontFamily: "Georgia, serif" }}
+            >
+              Welcome To
+            </span>
+            <span
+              className="block bg-gradient-to-r from-lime-400 via-lime-500 to-lime-600 text-transparent bg-clip-text"
+              style={{
+                fontFamily: "Georgia, serif",
+                textShadow: "0 0 80px rgba(251, 191, 36, 0.3)",
+              }}
+            >
+              VIP SERVICE 4U
+            </span>
+          </h1>
+
+          {/* CTA Button */}
+          <div className="flex justify-center">
+            <button
+              onClick={() => {
+                // Add your order logic here
+                window.location.href = "#order";
+              }}
+              className="group relative px-20 py-6 text-xl md:text-2xl font-semibold text-black bg-gradient-to-r from-lime-400 to-lime-500 overflow-hidden transition-all duration-500 hover:scale-105"
+              style={{
+                fontFamily: "Georgia, serif",
+                letterSpacing: "0.05em",
+                boxShadow: "0 10px 40px rgba(251, 191, 36, 0.4)",
+              }}
+            >
+              <span className="relative z-10 uppercase">Start Your Order</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-lime-500 to-lime-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            </button>
+          </div>
+
+          {/* Elegant divider */}
+          <div className="mt-24 flex justify-center items-center gap-4">
+            <div className="w-24 h-px bg-gradient-to-r from-transparent to-lime-500"></div>
+            <div className="w-2 h-2 bg-lime-500 rotate-45"></div>
+            <div className="w-24 h-px bg-gradient-to-l from-transparent to-lime-500"></div>
           </div>
         </div>
       </section>
-      <SidebarProvider>
-        <Menu />
-      </SidebarProvider>
-
-      <div className="flex py-10 gap-7  justify-between">
-        <Image
-          src="/leaf.png"
-          width={400}
-          height={400}
-          alt="Testimonial Background"
-          className="w-30  hidden md:block h-auto object-cover"
-        />
-        <Testimonials />
-
-        <Image
-          src="/leaf.png"
-          width={400}
-          height={400}
-          alt="Testimonial Background"
-          className="w-30 rotate-180  hidden md:block h-auto object-cover"
-        />
-      </div>
-
-      <Footer />
-    </main>
+      <Menu />
+    </>
   );
 }
