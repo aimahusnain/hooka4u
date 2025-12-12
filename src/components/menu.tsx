@@ -183,11 +183,7 @@ const Menu = () => {
       const order = await response.json();
 
       setShowSuccessDialog(true);
-      toast.success("Order placed successfully!", {
-        position: "bottom-right",
-        description: `Order #${order.id.slice(0, 8)} has been confirmed.`,
-      });
-
+      
       // Reset form state
       setCart({});
       setCustomerName("");
@@ -361,7 +357,7 @@ const Menu = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 -ml-2 text-white hover:bg-zinc-900"
+                  className="h-8 w-8 -ml-2 text-white hover:bg-lime-500"
                   onClick={handleBackToCart}
                 >
                   <ArrowLeft className="w-4 h-4" />

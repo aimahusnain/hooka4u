@@ -31,7 +31,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} overflow-x-hidden antialiased`}
       >
         {/* <ThemeContextProvider> */}
-          <Toaster theme="light" position="top-right" />
+          <Toaster theme="light" />
           <AuthProvider>{children}</AuthProvider>
         {/* </ThemeContextProvider> */}
       </body>
