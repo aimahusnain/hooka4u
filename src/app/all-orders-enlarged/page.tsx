@@ -1,36 +1,4 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import {
-  Loader2,
-  ShoppingBag,
-  Clock,
-  User,
-  Package,
-  DollarSign,
-  Calendar,
-  CreditCard,
-  Banknote,
-  MapPin,
-  Trash2,
-  Bell,
-  CheckCircle2,
-  AlertCircle,
-} from "lucide-react";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,7 +9,38 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertCircle,
+  Banknote,
+  CheckCircle2,
+  Clock,
+  CreditCard,
+  Loader2,
+  MapPin,
+  ShoppingBag,
+  ExternalLink,
+  Trash2,
+  User,
+  Maximize,
+  Minimize,
+} from "lucide-react";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 interface OrderItem {
   id: string;
@@ -77,10 +76,12 @@ export default function AllOrders() {
   const [lastFetchTime, setLastFetchTime] = useState<Date | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const previousOrderIdsRef = useRef<Set<string>>(new Set());
   const isInitialLoadRef = useRef(true);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     audioRef.current = new Audio(
@@ -89,19 +90,58 @@ export default function AllOrders() {
 
     fetchOrders();
     requestNotificationPermission();
+    enterFullscreen();
 
     const pollInterval = setInterval(() => {
       fetchOrdersQuietly();
     }, 60000);
 
+    // Listen for fullscreen changes
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
     return () => {
       clearInterval(pollInterval);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
       }
     };
   }, []);
+
+  const enterFullscreen = async () => {
+    try {
+      if (containerRef.current && !document.fullscreenElement) {
+        await containerRef.current.requestFullscreen();
+        setIsFullscreen(true);
+      }
+    } catch (err) {
+      console.error("Error entering fullscreen:", err);
+    }
+  };
+
+  const exitFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    } catch (err) {
+      console.error("Error exiting fullscreen:", err);
+    }
+  };
+
+  const toggleFullscreen = () => {
+    if (isFullscreen) {
+      exitFullscreen();
+    } else {
+      enterFullscreen();
+    }
+  };
 
   const handleNewOrder = (newOrder: Order) => {
     playNotificationSound();
@@ -454,47 +494,36 @@ export default function AllOrders() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-black">
+    <div ref={containerRef} className="flex flex-col h-screen w-screen bg-black overflow-hidden">
       {/* Header */}
-      <header className="flex h-14 shrink-0 items-center gap-3 bg-card border-b border-border">
-        <div className="flex items-center gap-2 md:gap-3 px-3 md:px-5 w-full justify-between">
-          <div className="flex items-center gap-2 md:gap-3 min-w-0">
-            <SidebarTrigger className="hidden sm:flex -ml-1 text-muted-foreground hover:text-foreground" />
-            <Separator
-              orientation="vertical"
-              className="h-4 bg-border hidden sm:block"
-            />
-            <Breadcrumb className="min-w-0">
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink
-                    href="#"
-                    className="text-muted-foreground hover:text-foreground text-sm"
-                  >
-                    Order Tracking
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block text-muted-foreground" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="text-foreground text-sm font-medium truncate">
-                    All Orders
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+      <header className="flex h-14 shrink-0 items-center gap-3 bg-black border-b border-border">
+        <div className="flex flex-row md:gap-3 px-3 md:px-5 w-full items-center justify-between gap-2 text-xs text-zinc-200">
+          <div className="flex gap-2 items-center">
+            <Clock className="w-3.5 h-3.5 hidden sm:block" />
+            <span className="hidden sm:inline">
+              Updated {getTimeSinceLastFetch()}
+            </span>
+            <span className="sm:hidden">{getTimeSinceLastFetch()}</span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <Clock className="w-3.5 h-3.5 hidden sm:block" />
-              <span className="hidden sm:inline">
-                Updated {getTimeSinceLastFetch()}
-              </span>
-              <span className="sm:hidden">{getTimeSinceLastFetch()}</span>
-            </div>
-            <Link href="/all-orders-enlarged">
-              <Button>Enlarge</Button>
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleFullscreen}
+              className="h-8 w-8"
+              title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+            >
+              {isFullscreen ? (
+                <Minimize className="h-4 w-4" />
+              ) : (
+                <Maximize className="h-4 w-4" />
+              )}
+            </Button>
+            <Link href="/dashboard/all-orders">
+              <Button>
+                Go back <ExternalLink className="ml-2 h-4 w-4" />
+              </Button>
             </Link>
           </div>
         </div>
