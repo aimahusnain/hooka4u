@@ -183,7 +183,6 @@ const Menu = () => {
       const order = await response.json();
 
       setShowSuccessDialog(true);
-      
       // Reset form state
       setCart({});
       setCustomerName("");
