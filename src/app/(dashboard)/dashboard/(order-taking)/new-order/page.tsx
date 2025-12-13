@@ -336,7 +336,7 @@ return (
                             className="absolute inset-0 w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                          <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-muted to-muted/50">
                             <ShoppingCart className="w-8 h-8 sm:w-10 sm:h-10 text-muted-foreground/30" />
                           </div>
                         )}
