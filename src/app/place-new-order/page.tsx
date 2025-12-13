@@ -278,7 +278,7 @@ export default function HeroSection() {
                 <p className="text-zinc-400 text-lg">No items available</p>
               </div>
             ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {products.map((product) => (
                   <div key={product.id} className="bg-linear-to-br from-zinc-800 to-zinc-900 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-zinc-700">
                     <div className="relative h-64 overflow-hidden">
