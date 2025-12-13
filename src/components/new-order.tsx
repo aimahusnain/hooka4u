@@ -289,10 +289,7 @@ export default function NewOrder() {
       </div>
     )}
 
-    {/* Price Badge */}
-    <div className="absolute top-3 left-3 bg-lime-500 text-black text-sm font-semibold px-3 py-1 rounded-full shadow-md">
-      ${product.price.toFixed(2)}
-    </div>
+
 
     {/* Quantity Badge */}
     {isSelected && (
@@ -303,9 +300,12 @@ export default function NewOrder() {
 
     {/* Bottom Overlay */}
     <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent space-y-2">
-
+    {/* Price Badge */}
+    <div className="w-fit bg-lime-500 text-black text-md font-bold px-3 py-1 rounded-full shadow-md">
+      ${product.price.toFixed(2)}
+    </div>
       {/* Title */}
-      <h3 className="text-white font-semibold text-sm leading-tight">
+      <h3 className="text-white font-semibold text-2xl leading-tight">
         {product.name}
       </h3>
 
