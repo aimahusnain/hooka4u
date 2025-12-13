@@ -233,7 +233,7 @@ export default function NewOrder() {
       {/* Main Content */}
       <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
         {/* Products Section */}
-        <div className="flex-1 flex flex-col overflow-hidden pb-20 md:pb-0 bg-zinc-50 dark:bg-zinc-900 md:bg-background">
+        <div className="flex-1 flex flex-col overflow-hidden pb-20 md:pb-0">
           <div className="flex-1 overflow-y-auto p-3 sm:p-6">
             {loading ? (
               <div className="flex flex-col items-center justify-center h-full">
@@ -258,62 +258,74 @@ export default function NewOrder() {
                 <EmptyHookahState />
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {products.map((product) => {
                   const inCart = cart[product.id]
                   const isSelected = inCart && inCart.quantity > 0
 
                   return (
-                    <div
-                      key={product.id}
-                      className={`cursor-pointer transition-all border overflow-hidden rounded-lg ${
-                        isSelected
-                          ? "bg-lime-100 dark:bg-lime-950 shadow-md border-lime-300 dark:border-lime-800"
-                          : "border-zinc-700 bg-zinc-800 hover:border-lime-500 hover:shadow-sm"
-                      }`}
-                      onClick={() => handleProductClick(product)}
-                    >
-                      <div className="p-0">
-                        {/* Square Image Container */}
-                        <div className="relative w-full pt-[100%] bg-zinc-900 overflow-hidden">
-                          {product.image ? (
-                            <img
-                              src={product.image || "/placeholder.svg"}
-                              alt={product.name}
-                              className="absolute inset-0 w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
-                              <ShoppingCart className="w-8 h-8 sm:w-10 sm:h-10 text-zinc-700" />
-                            </div>
-                          )}
-                          {isSelected && (
-                            <div className="absolute top-2 right-2">
-                              <div className="bg-lime-500 hover:bg-lime-500 text-black px-2 py-1 text-xs font-medium shadow-md rounded-full">
-                                {inCart.quantity}
-                              </div>
-                            </div>
-                          )}
-                        </div>
+<div
+  key={product.id}
+  className={`cursor-pointer transition-all border overflow-hidden rounded-lg relative ${
+    isSelected
+      ? "bg-lime-100 dark:bg-lime-950 shadow-md border-lime-300 dark:border-lime-800"
+      : "border-zinc-700 bg-zinc-800 hover:border-lime-500 hover:shadow-sm"
+  }`}
+  onClick={() => handleProductClick(product)}
+>
+  {/* Square Image Container */}
+  <div className="relative w-full h-82 pt-[100%] bg-zinc-900 overflow-hidden">
 
-                        {/* Product Info */}
-                        <div className="px-3 sm:px-4 py-3 space-y-2">
-                          <div>
-                            <h3 className="font-semibold text-xs sm:text-sm text-white leading-snug line-clamp-1">
-                              {product.name}
-                            </h3>
-                            {product.description && (
-                              <p className="text-xs text-zinc-400 mt-1 line-clamp-2">{product.description}</p>
-                            )}
-                          </div>
-                          <div className="pt-1">
-                            <span className="font-semibold text-sm sm:text-base text-lime-500">
-                              ${product.price.toFixed(2)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+    {/* Product Image */}
+    {product.image ? (
+      <img
+        src={product.image || "/placeholder.svg"}
+        alt={product.name}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    ) : (
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
+        <ShoppingCart className="w-10 h-10 text-zinc-700" />
+      </div>
+    )}
+
+    {/* Price Badge */}
+    <div className="absolute top-3 left-3 bg-lime-500 text-black text-sm font-semibold px-3 py-1 rounded-full shadow-md">
+      ${product.price.toFixed(2)}
+    </div>
+
+    {/* Quantity Badge */}
+    {isSelected && (
+      <div className="absolute top-3 right-3 bg-lime-500 text-black px-2 py-1 text-xs font-medium rounded-full shadow-md">
+        {inCart.quantity}
+      </div>
+    )}
+
+    {/* Bottom Overlay */}
+    <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent space-y-2">
+
+      {/* Title */}
+      <h3 className="text-white font-semibold text-sm leading-tight">
+        {product.name}
+      </h3>
+
+      {/* Description */}
+      {product.description && (
+        <p className="text-zinc-300 text-xs line-clamp-2">
+          {product.description}
+        </p>
+      )}
+
+      {/* Add to Cart Button */}
+      <button
+        className="w-full mt-2 bg-lime-500 hover:bg-lime-400 text-black text-sm font-semibold py-2 rounded-md transition"
+      >
+        Add to Cart
+      </button>
+    </div>
+  </div>
+</div>
+
                   )
                 })}
               </div>
@@ -323,7 +335,7 @@ export default function NewOrder() {
 
         {/* Desktop Cart Sidebar */}
         <div
-          className={`hidden md:flex flex-col transition-all duration-300 ease-in-out border-l border-border bg-zinc-950 text-white ${
+          className={`hidden md:flex flex-col transition-all duration-300 ease-in-out border-l border-border bg-zinc-250 text-white ${
             isCartOpen ? "w-[400px]" : "w-0"
           } overflow-hidden`}
         >
@@ -525,7 +537,7 @@ export default function NewOrder() {
 
       {/* Mobile Bottom Button */}
       {totalItems > 0 && (
-        <div className="fixed bottom-15 left-0 right-0 md:hidden bg-white dark:bg-zinc-900 border-t border-border p-4">
+        <div className="fixed bottom-0 left-0 right-0 md:hidden p-4">
           <Button
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 text-base font-semibold rounded-lg"
             onClick={handleMobileOrderButton}
