@@ -402,7 +402,7 @@ export default function UserManagement() {
                   <CardContent className="flex flex-col items-center justify-center py-12">
                     <UserPlus className="w-12 h-12 text-muted-foreground mb-3" />
                     <p className="text-muted-foreground text-sm">No users yet</p>
-                    <p className="text-xs text-muted-foreground mt-1">Add your first user to get started</p>
+                    <p className="text-xs text-muted-foreground mt-1">If there is no user! Then who you are???</p>
                   </CardContent>
                 </Card>
               ) : (

@@ -35,6 +35,7 @@ export default function HeroSection() {
   const [customerName, setCustomerName] = useState("");
   const [paymentType, setPaymentType] = useState<"CASH" | "CARD" | "">("");
   const [seating, setSeating] = useState("");
+  const [showHero, setShowHero] = useState(true);
 
   // Fetch products from API
   useEffect(() => {
@@ -212,51 +213,58 @@ export default function HeroSection() {
   return (
     <>
       {/* Hero Section */}
-      <section className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0 bg-linear-to-b from-black via-zinc-900 to-black"></div>
+      {showHero == true ? (
+        <section className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center">
+          <div className="absolute inset-0 bg-linear-to-b from-black via-zinc-900 to-black"></div>
 
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-lime-500 to-transparent"></div>
-          <div className="absolute bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-lime-500 to-transparent"></div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold mb-12 sm:mb-20 tracking-tight">
-            <span className="block text-white mb-4" style={{ fontFamily: "Georgia, serif" }}>
-              Welcome To
-            </span>
-            <span className="block bg-linear-to-r from-lime-400 via-lime-500 to-lime-600 text-transparent bg-clip-text" style={{ fontFamily: "Georgia, serif" }}>
-              VIP SERVICE 4U
-            </span>
-          </h1>
-
-          <div className="flex justify-center">
-            <button
-              onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
-              className="group relative px-12 sm:px-20 py-4 sm:py-6 text-lg sm:text-xl md:text-2xl font-semibold text-black bg-linear-to-r from-lime-400 to-lime-500 overflow-hidden transition-all duration-500 hover:scale-105"
-              style={{ fontFamily: "Georgia, serif", letterSpacing: "0.05em", boxShadow: "0 10px 40px rgba(132, 204, 22, 0.4)" }}
-            >
-              <span className="relative z-10 uppercase">View Items</span>
-              <div className="absolute inset-0 bg-linear-to-r from-lime-500 to-lime-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            </button>
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-lime-500 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-lime-500 to-transparent"></div>
           </div>
-        </div>
 
-        {/* Floating Cart Button */}
-        <button
-          onClick={() => setIsCartOpen(true)}
-          className="fixed top-6 right-6 z-50 bg-lime-500 text-black p-4 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300"
-        >
-          <ShoppingCart className="w-6 h-6" />
-          {totalItems > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold">
-              {totalItems}
-            </span>
-          )}
-        </button>
-      </section>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold mb-12 sm:mb-20 tracking-tight">
+              <span className="block text-white mb-4" style={{ fontFamily: "Georgia, serif" }}>
+                Welcome To
+              </span>
+              <span className="block bg-linear-to-r from-lime-400 via-lime-500 to-lime-600 text-transparent bg-clip-text" style={{ fontFamily: "Georgia, serif" }}>
+                VIP SERVICE 4U
+              </span>
+            </h1>
 
-      {/* Menu Section */}
+            <div className="flex justify-center">
+              <button
+                onClick={() => {
+                  setShowHero(false);
+                  setTimeout(() => {
+                    document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                }}
+                className="group relative px-12 sm:px-20 py-4 sm:py-6 text-lg sm:text-xl md:text-2xl font-semibold text-black bg-linear-to-r from-lime-400 to-lime-500 overflow-hidden transition-all duration-500 hover:scale-105"
+                style={{ fontFamily: "Georgia, serif", letterSpacing: "0.05em", boxShadow: "0 10px 40px rgba(132, 204, 22, 0.4)" }}
+              >
+                <span className="relative z-10 uppercase">View Items</span>
+                <div className="absolute inset-0 bg-linear-to-r from-lime-500 to-lime-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              </button>
+            </div>
+          </div>
+
+          {/* Floating Cart Button */}
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="fixed top-6 right-6 z-50 bg-lime-500 text-black p-4 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300"
+          >
+            <ShoppingCart className="w-6 h-6" />
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold">
+                {totalItems}
+              </span>
+            )}
+          </button>
+        </section>
+      ) : (
+        <>
+              {/* Menu Section */}
       <section id="menu" className="bg-black">
         {/* Desktop Grid View */}
         <div className="hidden md:block min-h-screen bg-linear-to-b from-black to-zinc-900 py-20 px-4">
@@ -289,11 +297,8 @@ export default function HeroSection() {
                           <ShoppingCart className="w-16 h-16 text-zinc-700" />
                         </div>
                       )}
-                      <div className="absolute top-4 right-4 bg-lime-500 text-black px-3 py-1 rounded-full font-bold">
-                        ${product.price.toFixed(2)}
-                      </div>
                       {cart[product.id] && (
-                        <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full font-bold text-sm">
+                        <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full font-bold text-sm">
                           {cart[product.id].quantity}
                         </div>
                       )}
@@ -302,6 +307,9 @@ export default function HeroSection() {
                       <h3 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "Georgia, serif" }}>
                         {product.name}
                       </h3>
+                      <div className="bg-lime-500 text-black px-3 py-1 rounded-full font-bold inline-block mb-3">
+                        ${product.price.toFixed(2)}
+                      </div>
                       {product.description && (
                         <p className="text-zinc-400 mb-4 text-sm">{product.description}</p>
                       )}
@@ -405,6 +413,25 @@ export default function HeroSection() {
           )}
         </div>
       </section>
+      </>
+      )}
+
+      {/* Floating Cart Button (shown when hero is hidden) */}
+      {!showHero && (
+        <button
+          onClick={() => setIsCartOpen(true)}
+          className="fixed top-6 right-6 z-50 bg-lime-500 text-black p-4 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300"
+        >
+          <ShoppingCart className="w-6 h-6" />
+          {totalItems > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold">
+              {totalItems}
+            </span>
+          )}
+        </button>
+      )}
+
+
 
       {/* Cart Modal */}
       {isCartOpen && (
