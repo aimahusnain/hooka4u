@@ -258,7 +258,7 @@ export default function NewOrder() {
                 <EmptyHookahState />
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-7 gap-3">
                 {products.map((product) => {
                   const inCart = cart[product.id]
                   const isSelected = inCart && inCart.quantity > 0
@@ -293,7 +293,7 @@ export default function NewOrder() {
 
     {/* Quantity Badge */}
     {isSelected && (
-      <div className="absolute top-3 right-3 bg-lime-500 text-black px-2 py-1 text-xs font-medium rounded-full shadow-md">
+      <div className="absolute top-3 right-3 bg-red-500 text-white px-2 py-1 text-xs font-medium rounded-full shadow-md">
         {inCart.quantity}
       </div>
     )}
@@ -451,7 +451,7 @@ export default function NewOrder() {
               {/* Order Form Content */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="customerName" className="text-sm font-medium text-white">
+                  <Label htmlFor="customerName" className="text-sm font-medium text-black">
                     Customer Name *
                   </Label>
                   <Input
@@ -459,22 +459,22 @@ export default function NewOrder() {
                     placeholder="Enter customer name"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
-                    className="h-9 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 text-sm"
+                    className="h-9 bg-zinc-800 border-zinc-700 text-black placeholder:text-zinc-500 text-sm"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-white">Payment Type *</Label>
+                  <Label className="text-sm font-medium text-black">Payment Type *</Label>
                   <RadioGroup value={paymentType} onValueChange={(value) => setPaymentType(value as "CASH" | "CARD")}>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="CASH" id="cash" className="border-zinc-600 text-lime-500" />
-                      <Label htmlFor="cash" className="text-sm font-normal cursor-pointer text-white">
+                      <Label htmlFor="cash" className="text-sm font-normal cursor-pointer text-black">
                         Cash
                       </Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="CARD" id="card" className="border-zinc-600 text-lime-500" />
-                      <Label htmlFor="card" className="text-sm font-normal cursor-pointer text-white">
+                      <Label htmlFor="card" className="text-sm font-normal cursor-pointer text-black">
                         Card
                       </Label>
                     </div>
@@ -482,7 +482,7 @@ export default function NewOrder() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="seating" className="text-sm font-medium text-white">
+                  <Label htmlFor="seating" className="text-sm font-medium text-black">
                     Seating Location *
                   </Label>
                   <Input
@@ -490,12 +490,12 @@ export default function NewOrder() {
                     placeholder="Enter seating location"
                     value={seating}
                     onChange={(e) => setSeating(e.target.value)}
-                    className="h-9 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 text-sm"
+                    className="h-9 bg-zinc-800 border-zinc-700 text-black placeholder:text-zinc-500 text-sm"
                   />
                 </div>
 
                 <div className="border-t border-zinc-800 pt-4">
-                  <h3 className="font-semibold text-sm text-white mb-3">Order Summary</h3>
+                  <h3 className="font-semibold text-sm text-black mb-3">Order Summary</h3>
                   <div className="space-y-2">
                     {cartItems.map((item) => (
                       <div key={item.id} className="flex justify-between text-sm">
@@ -507,7 +507,7 @@ export default function NewOrder() {
                     ))}
                   </div>
                   <div className="flex justify-between items-center mt-4 pt-4 border-t border-zinc-800">
-                    <span className="font-semibold text-white">Total</span>
+                    <span className="font-semibold text-black">Total</span>
                     <span className="text-xl font-bold text-lime-500">${subtotal.toFixed(2)}</span>
                   </div>
                 </div>
@@ -516,7 +516,7 @@ export default function NewOrder() {
               {/* Order Form Footer */}
               <div className="border-t border-zinc-800 bg-zinc-900 p-4">
                 <Button
-                  className="w-full bg-lime-600 hover:bg-lime-700 text-white h-10 text-sm font-medium transition-colors"
+                  className="w-full bg-lime-600 hover:bg-lime-700 text-black h-10 text-sm font-medium transition-colors"
                   onClick={handleConfirmOrder}
                   disabled={submitting}
                 >
@@ -543,7 +543,7 @@ export default function NewOrder() {
             onClick={handleMobileOrderButton}
           >
             <ShoppingCart className="w-5 h-5 mr-2" />
-            Place Order ({totalItems})
+            View Cart ({totalItems})
           </Button>
         </div>
       )}
@@ -555,7 +555,7 @@ export default function NewOrder() {
 
       {/* Mobile Sheet Drawer */}
       <div
-        className={`fixed right-0 top-0 bottom-0 w-full max-w-md bg-zinc-950 text-white shadow-2xl z-50 md:hidden transition-transform duration-300 ease-out flex flex-col ${
+        className={`fixed right-0 top-0 bottom-0 w-full max-w-md bg-zinc-950 text-black shadow-2xl z-50 md:hidden transition-transform duration-300 ease-out flex flex-col ${
           isMobileSheetOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -566,7 +566,7 @@ export default function NewOrder() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 -ml-2 hover:bg-zinc-800 text-white"
+                className="h-8 w-8 -ml-2 hover:bg-zinc-800 text-black"
                 onClick={handleMobileSheetBackToCart}
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -578,7 +578,7 @@ export default function NewOrder() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 hover:bg-zinc-800 text-white"
+            className="h-8 w-8 hover:bg-zinc-800 text-black"
             onClick={() => setIsMobileSheetOpen(false)}
           >
             <X className="w-5 h-5" />
