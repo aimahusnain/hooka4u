@@ -8,10 +8,27 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookA, ListOrdered, DollarSign, Menu, Users, Frame, ArrowRight } from "lucide-react";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  BookA,
+  ListOrdered,
+  DollarSign,
+  Menu,
+  Users,
+  Frame,
+  ArrowRight,
+} from "lucide-react";
+import { getSession } from "next-auth/react";
 
-export default function Page() {
+export default async function Dashboard() {
+  const session = await getSession();
+  const userRole = session?.user?.role;
+
   const navMain = [
     {
       title: "New Order",
@@ -69,7 +86,7 @@ export default function Page() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="block">
-                <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
+                <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="block" />
               <BreadcrumbItem>
@@ -98,18 +115,28 @@ export default function Page() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {navMain.map((item) => {
                 const Icon = item.icon;
+                const isDisabled = item.requiresAdmin && userRole !== "ADMIN"; // disable for non-admins
+
                 return (
                   <a
                     key={item.title}
-                    href={item.url}
-                    className="group"
+                    href={isDisabled ? "#" : item.url} // prevent navigation if disabled
+                    className={`group ${
+                      isDisabled ? "pointer-events-none opacity-50" : ""
+                    }`} // dim and disable click
                   >
                     <Card className="transition-all hover:shadow-md hover:border-primary/50">
                       <CardHeader>
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
                             <div className="p-2 rounded-lg bg-primary/10">
-                              <Icon className="h-5 w-5 text-primary" />
+                              <Icon
+                                className={`h-5 w-5 ${
+                                  isDisabled
+                                    ? "text-muted-foreground"
+                                    : "text-primary"
+                                }`}
+                              />
                             </div>
                             <div className="space-y-1">
                               <CardTitle className="text-base flex items-center gap-2">
@@ -143,11 +170,7 @@ export default function Page() {
               {projects.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <a
-                    key={item.name}
-                    href={item.url}
-                    className="group"
-                  >
+                  <a key={item.name} href={item.url} className="group">
                     <Card className="transition-all hover:shadow-md hover:border-primary/50">
                       <CardHeader>
                         <div className="flex items-start justify-between">

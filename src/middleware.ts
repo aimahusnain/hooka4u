@@ -2,56 +2,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const PUBLIC_ROUTES = ["/login", "/register"]; // allowed without login
-const DASHBOARD_ROUTES = ["/admin-dashboard", "/dashboard"]; // protected routes
-
-// Role-based allowed routes
-const USER_ALLOWED_ROUTES = [
+const PUBLIC_ROUTES = ["/login", "/register"];
+const DASHBOARD_ROUTES = ["/admin-dashboard", "/dashboard"];
+const RESTRICTED_FOR_USER = [
   "/dashboard/menu",
-  "/dashboard/users-management",
-];
-const ADMIN_ALLOWED_ROUTES = [
-  ...USER_ALLOWED_ROUTES, // Admin can access everything user can
-  "/admin-dashboard",     // example admin route
+  "/dashboard/users-management"
 ];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const userRole = token?.role; // assuming your token has a 'role' property
 
   // --------------------------
   // 1️⃣ If logged in
   // --------------------------
   if (token) {
-    const role = token.role; // make sure you store role in JWT
-
-    // Redirect logged-in user if they try to access login page
+    // Redirect logged-in user if they try to access login
     if (pathname === "/login") {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
-    // Role-based access control
-    if (role === "user") {
-      // Allow only the user-allowed routes inside dashboard
-      const allowed = USER_ALLOWED_ROUTES.some((route) =>
-        pathname.startsWith(route)
-      );
-      if (!allowed && pathname.startsWith("/dashboard")) {
-        return NextResponse.redirect(new URL("/dashboard/menu", req.url));
+    // Role-based restrictions
+    if (userRole === "USER") {
+      if (RESTRICTED_FOR_USER.some((route) => pathname.startsWith(route))) {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
       }
     }
 
-    if (role === "admin") {
-      // Admin can access all admin routes
-      const allowed = ADMIN_ALLOWED_ROUTES.some((route) =>
-        pathname.startsWith(route)
-      );
-      if (!allowed && pathname.startsWith("/admin-dashboard")) {
-        return NextResponse.redirect(new URL("/admin-dashboard", req.url));
-      }
-    }
-
+    // Admin can access everything
     return NextResponse.next();
   }
 
@@ -59,11 +39,9 @@ export async function middleware(req: NextRequest) {
   // 2️⃣ If NOT logged in
   // --------------------------
   const isPublic = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
-  const isProtected = DASHBOARD_ROUTES.some((route) =>
-    pathname.startsWith(route)
-  );
+  const isDashboard = DASHBOARD_ROUTES.some((route) => pathname.startsWith(route));
 
-  if (!isPublic && isProtected) {
+  if (!isPublic && isDashboard) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
@@ -74,7 +52,7 @@ export const config = {
   matcher: [
     "/login",
     "/register",
-    "/dashboard/:path*",
     "/admin-dashboard/:path*",
+    "/dashboard/:path*",
   ],
 };

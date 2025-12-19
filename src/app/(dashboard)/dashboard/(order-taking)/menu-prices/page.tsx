@@ -139,10 +139,10 @@ export default function MenuPrices() {
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink
-                  href="#"
+                  href="/dashboard"
                   className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 text-sm"
                 >
-                  Menu Management
+                  Order Tracking
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block text-zinc-400 dark:text-zinc-600" />
