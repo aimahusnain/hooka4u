@@ -3,7 +3,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 const PUBLIC_ROUTES = ["/login", "/register"]; // allowed without login
-const DASHBOARD_ROUTES = ["/admin-dashboard", "/dashboard"];
+const DASHBOARD_ROUTES = ["/admin-dashboard", "/dashboard"]; // protected routes
+
+// Role-based allowed routes
+const USER_ALLOWED_ROUTES = [
+  "/dashboard/menu",
+  "/dashboard/users-management",
+];
+const ADMIN_ALLOWED_ROUTES = [
+  ...USER_ALLOWED_ROUTES, // Admin can access everything user can
+  "/admin-dashboard",     // example admin route
+];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -14,10 +24,32 @@ export async function middleware(req: NextRequest) {
   // 1️⃣ If logged in
   // --------------------------
   if (token) {
-    // Redirect logged-in user if they try to access login or home
+    const role = token.role; // make sure you store role in JWT
+
+    // Redirect logged-in user if they try to access login page
     if (pathname === "/login") {
-      const redirectTo = "/dashboard";
-      return NextResponse.redirect(new URL(redirectTo, req.url));
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+
+    // Role-based access control
+    if (role === "user") {
+      // Allow only the user-allowed routes inside dashboard
+      const allowed = USER_ALLOWED_ROUTES.some((route) =>
+        pathname.startsWith(route)
+      );
+      if (!allowed && pathname.startsWith("/dashboard")) {
+        return NextResponse.redirect(new URL("/dashboard/menu", req.url));
+      }
+    }
+
+    if (role === "admin") {
+      // Admin can access all admin routes
+      const allowed = ADMIN_ALLOWED_ROUTES.some((route) =>
+        pathname.startsWith(route)
+      );
+      if (!allowed && pathname.startsWith("/admin-dashboard")) {
+        return NextResponse.redirect(new URL("/admin-dashboard", req.url));
+      }
     }
 
     return NextResponse.next();
@@ -27,9 +59,11 @@ export async function middleware(req: NextRequest) {
   // 2️⃣ If NOT logged in
   // --------------------------
   const isPublic = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
-  const isDashboard = DASHBOARD_ROUTES.some((route) => pathname.startsWith(route));
+  const isProtected = DASHBOARD_ROUTES.some((route) =>
+    pathname.startsWith(route)
+  );
 
-  if (!isPublic && isDashboard) {
+  if (!isPublic && isProtected) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
@@ -38,9 +72,9 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/login", 
-    "/register", 
-    "/admin-dashboard/:path*", 
-    "/dashboard/:path*"
+    "/login",
+    "/register",
+    "/dashboard/:path*",
+    "/admin-dashboard/:path*",
   ],
 };
